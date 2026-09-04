@@ -512,17 +512,53 @@ get_header();
 
   <!-- ===== 4. CONSULTATION CTA SECTION ===== -->
   <section class="services-cta-v2" id="services-cta">
-    <div class="services-cta-v2__inner">
-      <span class="services-cta-v2__tag"><?php echo fitra_t_val( 'TECHNICAL CONSULTATION', 'KONSULTASI TEKNIS' ); ?></span>
-      <h2 class="services-cta-v2__title"><?php echo fitra_t_val( 'Ready to Start Your Project?', 'Siap Untuk Memulai Proyek Anda?' ); ?></h2>
-      <p class="services-cta-v2__subtitle"><?php echo fitra_t_val( 'Discuss your project specifications with our engineering team for optimized cost and high-quality execution.', 'Konsultasikan kebutuhan teknis Anda dengan tim ahli kami untuk solusi yang efisien dan berkualitas tinggi.' ); ?></p>
-      <div class="services-cta-v2__actions">
-        <a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="btn btn--orange services-cta-v2__btn-primary">
-          <?php echo fitra_t_val( 'CONTACT US NOW', 'HUBUNGI KAMI SEKARANG' ); ?>
-        </a>
-        <a href="<?php echo esc_url( home_url( '/profile/' ) ); ?>" class="btn btn--outline-dark services-cta-v2__btn-secondary">
-          <?php echo fitra_t_val( 'DOWNLOAD COMPANY PROFILE', 'UNDUH PROFIL PERUSAHAAN' ); ?>
-        </a>
+    <div class="cta-banner-wrapper">
+      <div class="cta-banner-card">
+        <!-- Technical Vector Globe Motif -->
+        <div class="cta-banner-card__bg" aria-hidden="true">
+          <svg viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg" class="cta-banner-card__globe">
+            <defs>
+              <radialGradient id="cta-globe-glow-svc" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e8611a" stop-opacity="0.22"/>
+                <stop offset="60%" stop-color="#0e1726" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#060b13" stop-opacity="0"/>
+              </radialGradient>
+              <pattern id="cta-dot-grid-svc" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.2" fill="rgba(255,255,255,0.08)"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#cta-dot-grid-svc)"/>
+            <circle cx="500" cy="250" r="230" fill="url(#cta-globe-glow-svc)"/>
+            <!-- Wireframe Globe Meridians & Parallels -->
+            <circle cx="500" cy="250" r="210" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <ellipse cx="500" cy="250" rx="140" ry="210" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="250" rx="70" ry="210" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <line x1="500" y1="40" x2="500" y2="460" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <line x1="290" y1="250" x2="710" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="170" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <ellipse cx="500" cy="330" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="cta-banner-card__content">
+          <span class="cta-banner-card__tag">
+            <span class="meta-dash">&mdash;&mdash;</span> <?php echo fitra_t_val( 'TECHNICAL &amp; ENGINEERING', 'LAYANAN TEKNIK &amp; REKAYASA' ); ?> <span class="meta-dash">&mdash;&mdash;</span>
+          </span>
+          <h2 class="cta-banner-card__title">
+            <?php echo fitra_t_val( 'Let’s make your industrial operations work smarter', 'Mari jadikan operasional industri Anda bekerja lebih andal' ); ?>
+          </h2>
+          <p class="cta-banner-card__desc">
+            <?php echo fitra_t_val( 'Trusted by leading Kalimantan plant operators to streamline maintenance, turnaround execution, and structural integrity. Schedule a consultation with our certified engineering team.', 'Dipercaya oleh pengelola kilang dan pabrik terkemuka di Kalimantan untuk optimasi pemeliharaan, eksekusi turnaround, dan integritas struktural. Jadwalkan konsultasi bersama tim ahli kami.' ); ?>
+          </p>
+          <div class="cta-banner-card__actions">
+            <a href="<?php echo esc_url( fitra_url( '/contact/' ) ); ?>" class="btn cta-banner-card__btn-primary">
+              <?php echo fitra_t_val( 'Talk to sales', 'Hubungi Sales' ); ?>
+            </a>
+            <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="btn cta-banner-card__btn-secondary">
+              <?php echo fitra_t_val( 'Request a demo', 'Minta Penawaran (RFQ)' ); ?>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>

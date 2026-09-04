@@ -653,17 +653,53 @@ get_header();
 
   <!-- ===== 4. CONSULTATION CTA SECTION ===== -->
   <section class="products-cta-v2" id="products-cta">
-    <div class="products-cta-v2__inner">
-      <span class="products-cta-v2__tag"><?php echo fitra_t_val( 'PROCUREMENT CONSULTATION', 'KONSULTASI PENGADAAN' ); ?></span>
-      <h2 class="products-cta-v2__title"><?php echo fitra_t_val( 'Ready to Fulfill Your Industrial Material Needs?', 'Siap Untuk Memenuhi Kebutuhan Material Anda?' ); ?></h2>
-      <p class="products-cta-v2__subtitle"><?php echo fitra_t_val( 'Contact our technical procurement specialists for competitive pricing, complete mill test certificates, and expedited on-site site deliveries.', 'Hubungi spesialis pengadaan kami untuk mendapatkan penawaran harga terbaik, spesifikasi teknis lengkap, dan jadwal pengiriman ke lokasi proyek Anda.' ); ?></p>
-      <div class="products-cta-v2__actions">
-        <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="btn btn--orange products-cta-v2__btn-primary">
-          <?php echo fitra_t_val( 'REQUEST QUOTE (RFQ)', 'MINTA PENAWARAN (RFQ)' ); ?>
-        </a>
-        <a href="<?php echo esc_url( home_url( '/profile/' ) ); ?>" class="btn btn--outline-dark products-cta-v2__btn-secondary">
-          <?php echo fitra_t_val( 'DOWNLOAD CATALOG (PDF)', 'UNDUH KATALOG PRODUK (PDF)' ); ?>
-        </a>
+    <div class="cta-banner-wrapper">
+      <div class="cta-banner-card">
+        <!-- Technical Vector Globe Motif -->
+        <div class="cta-banner-card__bg" aria-hidden="true">
+          <svg viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg" class="cta-banner-card__globe">
+            <defs>
+              <radialGradient id="cta-globe-glow-prod" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e8611a" stop-opacity="0.22"/>
+                <stop offset="60%" stop-color="#0e1726" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#060b13" stop-opacity="0"/>
+              </radialGradient>
+              <pattern id="cta-dot-grid-prod" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.2" fill="rgba(255,255,255,0.08)"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#cta-dot-grid-prod)"/>
+            <circle cx="500" cy="250" r="230" fill="url(#cta-globe-glow-prod)"/>
+            <!-- Wireframe Globe Meridians & Parallels -->
+            <circle cx="500" cy="250" r="210" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <ellipse cx="500" cy="250" rx="140" ry="210" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="250" rx="70" ry="210" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <line x1="500" y1="40" x2="500" y2="460" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <line x1="290" y1="250" x2="710" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="170" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <ellipse cx="500" cy="330" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="cta-banner-card__content">
+          <span class="cta-banner-card__tag">
+            <span class="meta-dash">&mdash;&mdash;</span> <?php echo fitra_t_val( 'PROCUREMENT &amp; SUPPLY', 'PENGADAAN &amp; PASOKAN' ); ?> <span class="meta-dash">&mdash;&mdash;</span>
+          </span>
+          <h2 class="cta-banner-card__title">
+            <?php echo fitra_t_val( 'Let’s make your supply chain work smarter', 'Mari jadikan rantai pasok industri Anda bekerja lebih optimal' ); ?>
+          </h2>
+          <p class="cta-banner-card__desc">
+            <?php echo fitra_t_val( 'Trusted by leading energy, mining, and industrial operators across Kalimantan from sourcing to delivery. Talk to our sales specialists or request a quote today.', 'Dipercaya oleh pelaku industri energi, pertambangan, dan pabrik pupuk terkemuka di Kalimantan untuk pengadaan terpadu. Hubungi tim sales kami atau ajukan permintaan penawaran sekarang.' ); ?>
+          </p>
+          <div class="cta-banner-card__actions">
+            <a href="<?php echo esc_url( fitra_url( '/contact/' ) ); ?>" class="btn cta-banner-card__btn-primary">
+              <?php echo fitra_t_val( 'Talk to sales', 'Hubungi Sales' ); ?>
+            </a>
+            <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="btn cta-banner-card__btn-secondary">
+              <?php echo fitra_t_val( 'Request a demo', 'Minta Penawaran (RFQ)' ); ?>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
