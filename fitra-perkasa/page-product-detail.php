@@ -54,18 +54,24 @@ if ( ! $product ) {
     get_footer();
     return;
 }
+
+$cat_key = $product['cat_key'] ?? ( function_exists( 'fitra_get_product_category_key' ) ? fitra_get_product_category_key( $product['category_en'] ?? $product['category'] ) : 'all' );
+$cat_url = fitra_url( '/products/?filter=' . $cat_key . '#products-catalog' );
+$products_url = fitra_url( '/products/#products-catalog' );
+$current_product_slug = $product['slug'] ?? $page_slug;
+$current_product_url = fitra_url( '/products/' . $current_product_slug . '/' );
 ?>
 
   <!-- ===== BREADCRUMB ===== -->
   <section class="pd-breadcrumb" id="pd-breadcrumb">
     <div class="pd-breadcrumb__inner">
-      <a href="<?php echo esc_url( fitra_url( '/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'HOME', 'BERANDA' ); ?></a>
+      <a href="<?php echo esc_url( fitra_url( '/' ) ); ?>" class="pd-breadcrumb__link" title="<?php echo esc_attr( fitra_t_val( 'Return to Home', 'Kembali ke Beranda' ) ); ?>"><?php echo fitra_t_val( 'HOME', 'BERANDA' ); ?></a>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
-      <a href="<?php echo esc_url( fitra_url( '/products/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'PRODUCTS', 'PRODUK' ); ?></a>
+      <a href="<?php echo esc_url( $products_url ); ?>" class="pd-breadcrumb__link" title="<?php echo esc_attr( fitra_t_val( 'All Products Catalog', 'Katalog Semua Produk' ) ); ?>"><?php echo fitra_t_val( 'PRODUCTS', 'PRODUK' ); ?></a>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
-      <span class="pd-breadcrumb__link"><?php echo esc_html( strtoupper( $product['category'] ) ); ?></span>
+      <a href="<?php echo esc_url( $cat_url ); ?>" class="pd-breadcrumb__link pd-breadcrumb__link--type" title="<?php echo esc_attr( fitra_t_val( 'Filter Products by ' . $product['category'], 'Saring Produk Berdasarkan ' . $product['category'] ) ); ?>"><?php echo esc_html( strtoupper( $product['category'] ) ); ?></a>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
-      <span class="pd-breadcrumb__current"><?php echo esc_html( strtoupper( $product['title'] ) ); ?></span>
+      <a href="<?php echo esc_url( $current_product_url ); ?>" class="pd-breadcrumb__link pd-breadcrumb__current" aria-current="page" title="<?php echo esc_attr( $product['title'] ); ?>"><?php echo esc_html( strtoupper( $product['title'] ) ); ?></a>
     </div>
   </section>
 

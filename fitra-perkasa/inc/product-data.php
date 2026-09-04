@@ -656,14 +656,45 @@ function fitra_get_products( $lang = null ) {
 
     // Populate active language fields
     foreach ( $products as $key => &$p ) {
+        $p['slug']       = $key;
         $p['category']   = ( $active_lang === 'id' && ! empty( $p['category_id'] ) ) ? $p['category_id'] : ( $p['category_en'] ?? ( $p['category'] ?? '' ) );
         $p['title']      = ( $active_lang === 'id' && ! empty( $p['title_id'] ) ) ? $p['title_id'] : ( $p['title_en'] ?? ( $p['title'] ?? '' ) );
         $p['full_title'] = ( $active_lang === 'id' && ! empty( $p['full_title_id'] ) ) ? $p['full_title_id'] : ( $p['full_title_en'] ?? ( $p['full_title'] ?? '' ) );
         $p['desc']       = ( $active_lang === 'id' && ! empty( $p['desc_id'] ) ) ? $p['desc_id'] : ( $p['desc_en'] ?? ( $p['desc'] ?? '' ) );
+        $p['cat_key']    = $p['cat_key'] ?? fitra_get_product_category_key( $p['category_en'] ?? ( $p['category'] ?? '' ) );
     }
     unset( $p );
 
     return $products;
+}
+
+/**
+ * Map a product category string to its catalog filter key.
+ *
+ * @param string $category Category label
+ * @return string Filter key: 'pipes', 'steels', 'gaskets', 'drives', 'valves', 'energy', or 'all'
+ */
+function fitra_get_product_category_key( $category ) {
+    $cat = strtolower( trim( (string) $category ) );
+    if ( strpos( $cat, 'pipe' ) !== false || strpos( $cat, 'pipa' ) !== false ) {
+        return 'pipes';
+    }
+    if ( strpos( $cat, 'steel' ) !== false || strpos( $cat, 'baja' ) !== false || strpos( $cat, 'pelat' ) !== false || strpos( $cat, 'plate' ) !== false ) {
+        return 'steels';
+    }
+    if ( strpos( $cat, 'gasket' ) !== false || strpos( $cat, 'seal' ) !== false ) {
+        return 'gaskets';
+    }
+    if ( strpos( $cat, 'drive' ) !== false || strpos( $cat, 'penggerak' ) !== false || strpos( $cat, 'gear' ) !== false || strpos( $cat, 'motor' ) !== false || strpos( $cat, 'coupling' ) !== false || strpos( $cat, 'kopling' ) !== false ) {
+        return 'drives';
+    }
+    if ( strpos( $cat, 'valve' ) !== false || strpos( $cat, 'katup' ) !== false || strpos( $cat, 'gauge' ) !== false || strpos( $cat, 'instrumen' ) !== false ) {
+        return 'valves';
+    }
+    if ( strpos( $cat, 'energy' ) !== false || strpos( $cat, 'energi' ) !== false || strpos( $cat, 'fuel' ) !== false || strpos( $cat, 'bakar' ) !== false || strpos( $cat, 'refinery' ) !== false || strpos( $cat, 'kilang' ) !== false ) {
+        return 'energy';
+    }
+    return 'all';
 }
 
 /**

@@ -335,10 +335,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // 8. Update URL Hash
+      // 8. Update URL Hash & Search params without stripping language parameters
       if (updateHash && history.replaceState) {
-        const newHash = currentFilter === "all" ? "" : `#${currentFilter}`;
-        history.replaceState(null, "", window.location.pathname + newHash);
+        try {
+          const currentUrl = new URL(window.location.href);
+          if (currentFilter === "all") {
+            currentUrl.searchParams.delete("filter");
+            currentUrl.searchParams.delete("cat");
+            currentUrl.hash = "";
+          } else {
+            currentUrl.searchParams.set("filter", currentFilter);
+            currentUrl.hash = "products-catalog";
+          }
+          history.replaceState(null, "", currentUrl.toString());
+        } catch (e) {
+          const newHash = currentFilter === "all" ? "" : `#${currentFilter}`;
+          history.replaceState(null, "", window.location.pathname + window.location.search + newHash);
+        }
       }
     };
 
@@ -391,15 +404,45 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // URL hash on page load
-    const currentProdHash = window.location.hash.replace("#", "").toLowerCase();
-    if (currentProdHash && document.querySelector(`.products-filter-btn[data-filter="${currentProdHash}"]`)) {
-      currentFilter = currentProdHash;
+    // -------------------------------------------------------------------
+    // Read filter from URL query param (?filter=... or ?cat=...) or URL hash (#pipes)
+    // -------------------------------------------------------------------
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterFromQuery = (urlParams.get("filter") || urlParams.get("cat") || "").toLowerCase().trim();
+    const hashVal = window.location.hash.replace("#", "").toLowerCase().trim();
+
+    let targetFilter = "all";
+    let shouldScroll = false;
+
+    if (filterFromQuery && document.querySelector(`.products-filter-btn[data-filter="${filterFromQuery}"]`)) {
+      targetFilter = filterFromQuery;
+      shouldScroll = true;
+    } else if (hashVal && document.querySelector(`.products-filter-btn[data-filter="${hashVal}"]`)) {
+      targetFilter = hashVal;
+      shouldScroll = true;
+    } else if (hashVal === "products-catalog" || hashVal === "products-grid" || hashVal === "products-filter-bar") {
+      shouldScroll = true;
+    }
+
+    if (targetFilter !== "all") {
+      currentFilter = targetFilter;
     }
 
     // Initial render
     currentPage = 1;
     renderProducts(false, false);
+
+    // If navigated with filter or hash pointing to catalog, smoothly scroll to grid
+    if (shouldScroll) {
+      setTimeout(() => {
+        const catalogEl = document.getElementById("products-catalog") || document.getElementById("products-filter-bar");
+        if (catalogEl) {
+          const yOffset = -70;
+          const y = catalogEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }, 120);
+    }
   }
 
   /* ------------------------------------------------

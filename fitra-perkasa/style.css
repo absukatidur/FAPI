@@ -3921,21 +3921,33 @@ body.page-template-page-products-php .header__hamburger span {
 .pd-breadcrumb__link {
   font-size: 0.6875rem;
   font-weight: var(--fw-bold);
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
 }
 
 .pd-breadcrumb__link:hover {
   color: var(--clr-orange);
 }
 
+.pd-breadcrumb__link--type {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pd-breadcrumb__link--type:hover {
+  color: var(--clr-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .pd-breadcrumb__sep {
   font-size: 0.8125rem;
   color: rgba(255, 255, 255, 0.25);
   line-height: 1;
+  user-select: none;
 }
 
 .pd-breadcrumb__current {
@@ -3944,6 +3956,13 @@ body.page-template-page-products-php .header__hamburger span {
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+a.pd-breadcrumb__current:hover {
+  color: var(--clr-orange);
 }
 
 /* --- Product Detail Hero --- */
