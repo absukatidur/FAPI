@@ -158,6 +158,31 @@ body.page-template-page-product-detail-php .header--scrolled {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
 }
 
+/* Header Mobile Menu Open State: Disable backdrop-filter to prevent containing block bug and ensure solid dark background */
+body.menu-open .header,
+.header.header--menu-open,
+body.page-template-page-products .header.header--menu-open,
+body.page-products .header.header--menu-open,
+body.home .header.header--menu-open,
+body.front-page .header.header--menu-open,
+body.page-template-page-profile .header.header--menu-open,
+body.page-template-page-profile-php .header.header--menu-open,
+body.page-template-page-services .header.header--menu-open,
+body.page-template-page-services-php .header.header--menu-open,
+body.page-template-page-product-detail .header.header--menu-open,
+body.page-template-page-product-detail-php .header.header--menu-open {
+  background: #090f1d !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-block-end-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Hide mobile-only RFQ link on desktop */
+.header__link--mobile-rfq {
+  display: none;
+}
+
 .header__inner {
   max-width: var(--container-max);
   margin-inline: auto;
@@ -679,8 +704,12 @@ body.page-template-page-profile-php .header__hamburger span,
 body.page-template-page-services .header__hamburger span,
 body.page-template-page-services-php .header__hamburger span,
 body.page-template-page-products .header__hamburger span,
-body.page-template-page-products-php .header__hamburger span {
-  background: #ffffff;
+body.page-template-page-products-php .header__hamburger span,
+body.page-products .header__hamburger span,
+body.menu-open .header__hamburger span,
+.header.header--menu-open .header__hamburger span,
+.header__hamburger.active span {
+  background: #ffffff !important;
 }
 
 .header__hamburger.active span:nth-child(1) {
@@ -2577,33 +2606,120 @@ body.page-template-page-products-php .header__hamburger span {
    ========================================================= */
 @media (max-width: 990px) {
   .header__nav {
-    position: fixed;
-    inset-block-start: var(--header-h);
-    inset-inline: 0;
-    inset-block-end: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    background: #090f1d;
-    transform: translateX(100%);
-    transition: transform var(--transition-base);
+    position: fixed !important;
+    inset-block-start: var(--header-h) !important;
+    top: var(--header-h) !important;
+    inset-inline: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    inset-block-end: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    width: 100% !important;
+    height: calc(100vh - var(--header-h)) !important;
+    height: calc(100dvh - var(--header-h)) !important;
+    background: #090f1d !important;
+    background-color: #090f1d !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding-block-start: 28px !important;
+    padding-block-end: 48px !important;
+    padding-inline: 24px !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    z-index: 99999 !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.3s !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85) !important;
+    border-block-start: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
   .header__nav.open {
-    transform: translateX(0);
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .header__nav ul {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 24px;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .header__nav ul li {
+    width: 100%;
   }
 
   .header__nav ul li a,
   .header__link {
-    font-size: var(--fs-lg);
-    color: #ffffff;
+    display: block;
+    width: 100%;
+    max-width: 380px;
+    font-size: 1.0625rem;
+    font-weight: var(--fw-semibold);
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-align: center;
+    padding: 13px 20px;
+    border-radius: 6px;
+    background: transparent;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+  }
+
+  .header__nav ul li a::after,
+  .header__link::after {
+    display: none !important;
+  }
+
+  .header__nav ul li a:hover,
+  .header__link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .header__link--active,
+  .header__nav ul li.current-menu-item a,
+  .header__nav ul li.current_page_item a {
+    color: var(--clr-orange) !important;
+    background: rgba(232, 97, 26, 0.12) !important;
+    border-color: rgba(232, 97, 26, 0.25) !important;
+    font-weight: var(--fw-bold);
+  }
+
+  /* Mobile RFQ CTA Button */
+  .header__link--mobile-rfq {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-block-start: 12px;
+    background: var(--clr-orange) !important;
+    color: #ffffff !important;
+    border-color: var(--clr-orange) !important;
+    font-weight: var(--fw-bold) !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 16px var(--clr-orange-glow);
+  }
+
+  .header__link--mobile-rfq:hover {
+    background: var(--clr-orange-hover) !important;
+    border-color: var(--clr-orange-hover) !important;
   }
 
   .header__rfq-btn {
@@ -2612,6 +2728,8 @@ body.page-template-page-products-php .header__hamburger span {
 
   .header__hamburger {
     display: flex;
+    position: relative;
+    z-index: 100000;
   }
 
   /* Front Page Tablet */

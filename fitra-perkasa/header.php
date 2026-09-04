@@ -64,6 +64,7 @@
             <a href="<?php echo esc_url( fitra_url( '/products/' ) ); ?>" class="header__link <?php echo $is_products ? 'header__link--active' : ''; ?>"><?php echo esc_html( fitra_t( 'nav_products' ) ); ?></a>
             <a href="<?php echo esc_url( fitra_url( '/news/' ) ); ?>" class="header__link <?php echo $is_news ? 'header__link--active' : ''; ?>"><?php echo esc_html( fitra_t( 'nav_news' ) ); ?></a>
             <a href="<?php echo esc_url( fitra_url( '/contact/' ) ); ?>" class="header__link <?php echo $is_contact ? 'header__link--active' : ''; ?>"><?php echo esc_html( fitra_t( 'nav_contact' ) ); ?></a>
+            <a href="<?php echo esc_url( fitra_url( '/#rfq' ) ); ?>" class="header__link header__link--mobile-rfq"><?php echo esc_html( fitra_t( 'nav_rfq' ) ); ?> &rarr;</a>
             <?php
         }
         ?>
