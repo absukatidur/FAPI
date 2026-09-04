@@ -9,14 +9,36 @@
 get_header();
 
 // Determine which product to display from the page slug
-$page_slug = get_post_field( 'post_name', get_post() );
-if ( empty( $page_slug ) || $page_slug === 'products' ) {
-    $request_uri = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
-    $parts = explode( '/', $request_uri );
-    if ( count( $parts ) >= 2 && $parts[0] === 'products' ) {
+$page_slug = '';
+
+// 1. Check URL path segments (e.g. /products/{slug} or /id/products/{slug} or /id/produk/{slug})
+$request_uri = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
+$parts = array_values( array_filter( explode( '/', $request_uri ) ) );
+if ( ! empty( $parts[0] ) && in_array( strtolower( $parts[0] ), array( 'id', 'en' ), true ) ) {
+    array_shift( $parts );
+}
+if ( ! empty( $parts[0] ) && in_array( strtolower( $parts[0] ), array( 'products', 'produk' ), true ) ) {
+    if ( ! empty( $parts[1] ) ) {
         $page_slug = sanitize_title( $parts[1] );
     }
 }
+
+// 2. Fallback to post_name
+if ( empty( $page_slug ) || in_array( $page_slug, array( 'products', 'produk' ), true ) ) {
+    $post_slug = get_post_field( 'post_name', get_post() );
+    if ( ! empty( $post_slug ) && ! in_array( $post_slug, array( 'products', 'produk' ), true ) ) {
+        $page_slug = $post_slug;
+    }
+}
+
+// 3. Fallback to query param (?product=xxx or ?slug=xxx)
+if ( empty( $page_slug ) && ! empty( $_GET['product'] ) ) {
+    $page_slug = sanitize_title( $_GET['product'] );
+}
+if ( empty( $page_slug ) && ! empty( $_GET['slug'] ) ) {
+    $page_slug = sanitize_title( $_GET['slug'] );
+}
+
 $product = fitra_get_product( $page_slug );
 
 if ( ! $product ) {
@@ -24,8 +46,8 @@ if ( ! $product ) {
     ?>
     <section class="products-hero" id="product-not-found">
       <div class="products-hero__inner">
-        <h1 class="products-hero__title">Product Not Found</h1>
-        <p class="products-hero__subtitle">The requested product could not be found. <a href="<?php echo esc_url( home_url( '/products/' ) ); ?>">Return to catalog</a>.</p>
+        <h1 class="products-hero__title"><?php echo fitra_t_val( 'Product Not Found', 'Produk Tidak Ditemukan' ); ?></h1>
+        <p class="products-hero__subtitle"><?php echo fitra_t_val( 'The requested product could not be found.', 'Produk yang Anda minta tidak dapat ditemukan.' ); ?> <a href="<?php echo esc_url( fitra_url( '/products/' ) ); ?>"><?php echo fitra_t_val( 'Return to catalog', 'Kembali ke katalog' ); ?></a>.</p>
       </div>
     </section>
     <?php
@@ -37,9 +59,9 @@ if ( ! $product ) {
   <!-- ===== BREADCRUMB ===== -->
   <section class="pd-breadcrumb" id="pd-breadcrumb">
     <div class="pd-breadcrumb__inner">
-      <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'HOME', 'BERANDA' ); ?></a>
+      <a href="<?php echo esc_url( fitra_url( '/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'HOME', 'BERANDA' ); ?></a>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
-      <a href="<?php echo esc_url( home_url( '/products/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'PRODUCTS', 'PRODUK' ); ?></a>
+      <a href="<?php echo esc_url( fitra_url( '/products/' ) ); ?>" class="pd-breadcrumb__link"><?php echo fitra_t_val( 'PRODUCTS', 'PRODUK' ); ?></a>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
       <span class="pd-breadcrumb__link"><?php echo esc_html( strtoupper( $product['category'] ) ); ?></span>
       <span class="pd-breadcrumb__sep">&rsaquo;</span>
@@ -106,7 +128,9 @@ if ( ! $product ) {
         <!-- Documents -->
         <?php if ( ! empty( $product['documents'] ) ) : ?>
         <div class="pd-hero__docs">
-          <?php foreach ( $product['documents'] as $doc ) : ?>
+          <?php foreach ( $product['documents'] as $doc ) : 
+              $doc_name = ( fitra_get_lang() === 'id' && ! empty( $doc['name_id'] ) ) ? $doc['name_id'] : $doc['name'];
+          ?>
           <a href="#" class="pd-doc">
             <div class="pd-doc__icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -117,7 +141,7 @@ if ( ! $product ) {
               </svg>
             </div>
             <div class="pd-doc__info">
-              <span class="pd-doc__name"><?php echo esc_html( $doc['name'] ); ?></span>
+              <span class="pd-doc__name"><?php echo esc_html( $doc_name ); ?></span>
               <span class="pd-doc__meta"><?php echo esc_html( $doc['type'] . ' • ' . $doc['size'] ); ?></span>
             </div>
             <div class="pd-doc__download">
@@ -136,7 +160,7 @@ if ( ! $product ) {
         <div class="pd-hero__consult">
           <h3 class="pd-hero__consult-title"><?php echo fitra_t_val( 'Request a Consultation', 'Konsultasi Teknis &amp; Penawaran' ); ?></h3>
           <p class="pd-hero__consult-desc"><?php echo fitra_t_val( 'Connect with our engineering team for sizing, pricing, and integration support.', 'Hubungi tim engineering kami untuk spesifikasi teknis, harga terbaik, dan ketersediaan stok.' ); ?></p>
-          <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="pd-hero__consult-btn" id="btn-request-consultation"><?php echo fitra_t_val( 'Request Quote &nbsp;&rarr;', 'Minta Penawaran &nbsp;&rarr;' ); ?></a>
+          <a href="<?php echo esc_url( fitra_url( '/#rfq' ) ); ?>" class="pd-hero__consult-btn" id="btn-request-consultation"><?php echo fitra_t_val( 'Request Quote &nbsp;&rarr;', 'Minta Penawaran &nbsp;&rarr;' ); ?></a>
         </div>
       </div>
 
@@ -161,16 +185,99 @@ if ( ! $product ) {
             'APPLICATIONS'        => 'APLIKASI INDUSTRI',
             'FLANGE TYPES'        => 'TIPE FLANGE',
             'PRESSURE CLASS'      => 'KELAS TEKANAN',
-            'FACING'              => 'TIPE FACING',
+            'MATERIAL GRADES'     => 'GRADE MATERIAL',
+            'DIMENSIONAL STD'     => 'STANDAR DIMENSI',
+            'FACING FINISH'       => 'FINISHING FACING',
+            'BRANCH FITTINGS'     => 'FITTING OUTLET CABANG',
+            'OUTSIDE DIAMETER'    => 'DIAMETER LUAR (OD)',
+            'WALL THICKNESS'      => 'KETEBALAN DINDING',
+            'DELIVERY STATE'      => 'KONDISI PENGIRIMAN',
+            'TESTING'             => 'PENGUJIAN & INSPEKSI',
+            'LENGTH'              => 'PANJANG PIPA',
+            'STEEL GRADES'        => 'GRADE BAJA',
+            'STAINLESS GRADES'    => 'GRADE STAINLESS STEEL',
+            'PRODUCT FORMS'       => 'BENTUK PRODUK',
+            'PLATE THICKNESS'     => 'KETEBALAN PELAT',
+            'BEAM SIZES'          => 'UKURAN BALOK',
+            'SURFACE FINISH'      => 'FINISHING PERMUKAAN',
+            'WEAR PLATE'          => 'PELAT TAHAN AUS',
+            'BOILER PLATE'        => 'PELAT BOILER',
+            'THICKNESS RANGE'     => 'RENTANG KETEBALAN',
+            'WIDTH & LENGTH'      => 'LEBAR & PANJANG',
+            'CHARPY V-NOTCH'      => 'UJI IMPAK CHARPY V-NOTCH',
+            'WELDABILITY'         => 'KEMAMPUAN LAS (WELDABILITY)',
+            'BEAM TYPES'          => 'TIPE BALOK BAJA',
+            'HOLLOW SECTIONS'     => 'PROFIL BERONGGA (HOLLOW)',
+            'STEEL QUALITY'       => 'MUTU BAJA',
+            'LENGTHS'             => 'PANJANG STANDAR',
+            'SURFACE'             => 'PERMUKAAN',
             'GASKET TYPES'        => 'TIPE GASKET',
-            'TEMPERATURE RANGE'   => 'RENTANG TEMPERATUR',
-            'POWER RATING'        => 'DAYA / KAPASITAS',
-            'RATIO'               => 'RASIO GEARBOX',
-            'TORQUE'              => 'TORSI OUTPUT',
-            'OUTPUT TORQUE'       => 'TORSI OUTPUT',
-            'CALIBRATION RANGE'   => 'RENTANG KALIBRASI',
-            'ACCURACY'            => 'AKURASI',
-            'CERTIFICATION'       => 'SERTIFIKASI',
+            'FILLER MATERIALS'    => 'MATERIAL PENGISI',
+            'WINDING STRIP'       => 'STRIP LILITAN',
+            'TEMPERATURE'         => 'TEMPERATUR KERJA',
+            'PRESSURE'            => 'TEKANAN KERJA',
+            'SIZES'               => 'UKURAN',
+            'BEARING TYPES'       => 'TIPE BANTALAN (BEARING)',
+            'BRANDS SUPPLIED'     => 'MEREK TERSEDIA',
+            'BORE SIZES'          => 'UKURAN BORE (DIAMETER DALAM)',
+            'SEAL TYPES'          => 'TIPE SEAL',
+            'SEAL MATERIALS'      => 'MATERIAL SEAL',
+            'CLEARANCE'           => 'CLEARANCE / KELONGGARAN',
+            'SEAL CONFIG'         => 'KONFIGURASI SEAL',
+            'FACE MATERIALS'      => 'MATERIAL SEAL FACE',
+            'ELASTOMERS'          => 'ELASTOMER',
+            'MAX TEMPERATURE'     => 'TEMPERATUR MAKSIMAL',
+            'PRESSURE LIMIT'      => 'BATAS TEKANAN',
+            'TORQUE RANGE'        => 'RENTANG TORSI',
+            'GEAR RATIOS'         => 'RASIO GEARBOX',
+            'HOUSING MATERIAL'    => 'MATERIAL RUMAH GEARBOX',
+            'GEAR TYPE'           => 'TIPE GEAR',
+            'MOUNTING'            => 'POSISI PEMASANGAN',
+            'LUBRICATION'         => 'SISTEM PELUMASAN',
+            'THERMAL RATING'      => 'KAPASITAS TERMAL',
+            'POWER OUTPUT'        => 'DAYA OUTPUT MOTOR',
+            'EFFICIENCY CLASS'    => 'KELAS EFISIENSI',
+            'PROTECTION RATING'   => 'PROTEKSI INGRESS (IP)',
+            'INSULATION'          => 'KELAS ISOLASI',
+            'VOLTAGE RATINGS'     => 'TEGANGAN LISTRIK',
+            'REDUCER RATIO'       => 'RASIO REDUKSI',
+            'DUTY CYCLE'          => 'SIKLUS KERJA (DUTY)',
+            'COUPLING TYPES'      => 'TIPE KOPLING',
+            'TORQUE CAPACITY'     => 'KAPASITAS TORSI',
+            'BORE CAPABILITY'     => 'KAPASITAS BORE POROS',
+            'MISALIGNMENT'        => 'KOMPENSASI DEVIASI',
+            'MATERIALS'           => 'MATERIAL',
+            'SIZE RANGE'          => 'RENTANG UKURAN',
+            'PRESSURE CLASSES'    => 'KELAS TEKANAN',
+            'BODY MATERIALS'      => 'MATERIAL BODY',
+            'TRIM DESIGN'         => 'DESAIN TRIM',
+            'ACTUATORS'           => 'AKTUATOR',
+            'PRESSURE RANGES'     => 'RENTANG TEKANAN',
+            'ACCURACY CLASS'      => 'KELAS AKURASI',
+            'DIAL SIZES'          => 'UKURAN DIAL',
+            'WETTED PARTS'        => 'BAGIAN TERBASAHI (WETTED PARTS)',
+            'MANIFOLD TYPES'      => 'TIPE MANIFOLD',
+            'INGRESS'             => 'PROTEKSI CUACA (IP)',
+            'ORIFICE SIZES'       => 'UKURAN ORIFICE',
+            'SET PRESSURE'        => 'TEKANAN SETELAN (SET PRESSURE)',
+            'BONNET TYPES'        => 'TIPE BONNET',
+            'CHECK VALVE'         => 'TIPE CHECK VALVE',
+            'FUEL TYPES'          => 'JENIS BAHAN BAKAR',
+            'STORAGE CAPACITY'    => 'KAPASITAS TANGKI TIMBUN',
+            'DISPENSING'          => 'SISTEM DISPENSING / ALIR',
+            'CERTIFICATIONS'      => 'SERTIFIKASI',
+            'LUBRICANTS'          => 'JENIS PELUMAS',
+            'CLEANLINESS'         => 'TINGKAT KEBERSIHAN',
+            'BOLTING'             => 'STUD BAUT & MUR',
+            'COATINGS'            => 'LAPISAN PELINDUNG (COATING)',
+            'INSULATION'          => 'ISOLASI TERMAL',
+            'FILTER ELEMENTS'     => 'ELEMEN FILTER',
+            'PACKING MATERIAL'    => 'MATERIAL PACKING',
+            'FILTRATION RATING'   => 'RATING FILTRASI',
+            'SEPARATION'          => 'EFISIENSI PEMISAHAN',
+            'PRESSURE LOSS'       => 'PENURUNAN TEKANAN (PRESSURE LOSS)',
+            'HOUSING DESIGN'      => 'DESAIN RUMAH FILTER',
+            'TURBINE SPARES'      => 'SUKU CADANG TURBIN',
         );
         foreach ( $product['specs'] as $label => $value ) : 
             $display_label = ( fitra_get_lang() === 'id' && isset( $spec_labels_id[ $label ] ) ) ? $spec_labels_id[ $label ] : $label;
