@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         header.classList.toggle("header--menu-open", isOpen);
       }
       document.body.classList.toggle("menu-open", isOpen);
-      document.body.style.overflow = isOpen ? "hidden" : "";
     };
 
     hamburger.addEventListener("click", (e) => {
@@ -64,6 +63,15 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleMenu(false);
       }
     });
+
+    // Close menu on page scroll
+    let lastScrollY = window.scrollY;
+    window.addEventListener("scroll", () => {
+      if (navMenu.classList.contains("open") && Math.abs(window.scrollY - lastScrollY) > 20) {
+        toggleMenu(false);
+      }
+      lastScrollY = window.scrollY;
+    }, { passive: true });
   }
 
   /* ------------------------------------------------
