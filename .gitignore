@@ -1,0 +1,49 @@
+# ==========================================
+# Fitra Perkasa Inti — Git Ignore
+# ==========================================
+
+# 1. Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# 2. Database Dumps & Backups
+*.sql
+*.sql.gz
+*.tar.gz
+*.zip
+*.bak
+
+# 3. Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 4. OS Specific Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# 5. Editor & IDE Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# 6. Dependency Directories (if applicable)
+node_modules/
+vendor/
+
+# 7. AI & Agent internal directories
+.agents/
