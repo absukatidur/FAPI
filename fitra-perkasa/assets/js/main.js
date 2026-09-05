@@ -933,31 +933,5 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 700);
     });
   }
-
-  // FAQ Quick Inquiry Form
-  const faqForm = document.getElementById("contact-faq-form");
-  const faqFeedback = document.getElementById("faq-feedback");
-  const faqSubmitBtn = document.getElementById("faq-submit-btn");
-
-  if (faqForm && faqSubmitBtn) {
-    faqForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const emailInput = document.getElementById("faq-quick-email");
-      if (emailInput && emailInput.value) {
-        const origText = faqSubmitBtn.textContent;
-        const isId = (document.documentElement.lang || "").toLowerCase().startsWith("id");
-        faqSubmitBtn.textContent = isId ? "Terkirim ✓" : "Sent ✓";
-        faqSubmitBtn.style.background = "#10b981";
-        if (faqFeedback) faqFeedback.style.display = "block";
-        emailInput.value = "";
-
-        setTimeout(() => {
-          faqSubmitBtn.textContent = origText;
-          faqSubmitBtn.style.background = "";
-          if (faqFeedback) faqFeedback.style.display = "none";
-        }, 4000);
-      }
-    });
-  }
 });
 

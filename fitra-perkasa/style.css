@@ -1613,26 +1613,9 @@ body.menu-open .header__hamburger span,
 .rfq-form__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.rfq-attach-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.6875rem;
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.75);
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: color var(--transition-fast);
-}
-
-.rfq-attach-btn:hover {
-  color: #ffffff;
 }
 
 .btn--rfq-submit {
@@ -3233,7 +3216,8 @@ body.menu-open .header__hamburger span,
 /* 4. Consultation CTA Banner (Services & Products)
    Centered banner card with technical globe motif & homepage industrial styling */
 .services-cta-v2,
-.products-cta-v2 {
+.products-cta-v2,
+.contact-cta-v2 {
   padding-block: 64px 80px;
   background: var(--clr-surface, #f7f7f8);
 }
@@ -3375,7 +3359,8 @@ body.menu-open .header__hamburger span,
 
 @media (max-width: 768px) {
   .services-cta-v2,
-  .products-cta-v2 {
+  .products-cta-v2,
+  .contact-cta-v2 {
     padding-block: 40px 60px;
   }
 
@@ -6368,6 +6353,17 @@ body.page-contact .header__rfq-btn:hover {
   width: 100%;
 }
 
+.contact-form label,
+.contact-form__label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #475569;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
 .contact-form__input {
   width: 100%;
   height: 48px;
@@ -6470,6 +6466,10 @@ body.page-contact .header__rfq-btn:hover {
   margin-top: 4px;
 }
 
+.contact-form__footer {
+  margin-top: 4px;
+}
+
 .contact-form__submit {
   width: 100%;
   height: 48px;
@@ -6478,8 +6478,10 @@ body.page-contact .header__rfq-btn:hover {
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   font-family: inherit;
   cursor: pointer;
   box-sizing: border-box;
@@ -6734,11 +6736,21 @@ body.page-contact .header__rfq-btn:hover {
   border-bottom: 1px solid #edf2f7;
 }
 
-.contact-faq__grid {
-  display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: 64px;
-  align-items: start;
+.contact-faq__wrap {
+  max-width: 860px;
+  margin-inline: auto;
+}
+
+.contact-faq__header {
+  text-align: center;
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: 48px;
+}
+
+.contact-faq__header .contact-kicker {
+  display: inline-block;
+  margin-bottom: 12px;
 }
 
 .contact-faq__title {
@@ -6747,99 +6759,14 @@ body.page-contact .header__rfq-btn:hover {
   color: #090f1d;
   letter-spacing: -0.025em;
   line-height: 1.2;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .contact-faq__desc {
   font-size: 0.95rem;
   line-height: 1.65;
   color: #64748b;
-  margin-bottom: 28px;
-}
-
-.contact-faq__quick-form {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 440px;
-  width: 100%;
-  min-height: 48px;
-  box-sizing: border-box;
-}
-
-.contact-faq__input-wrap {
-  position: relative;
-  flex: 1;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.contact-faq__input-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.contact-faq__input {
-  width: 100%;
-  height: 48px;
-  padding: 0 14px 0 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #090f1d;
-  font-size: 0.875rem;
-  font-family: inherit;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.contact-faq__input:focus {
-  border-color: var(--clr-orange, #e8611a);
-  box-shadow: 0 0 0 3px rgba(232, 97, 26, 0.15);
-}
-
-.contact-faq__submit-btn {
-  height: 48px;
-  padding: 0 24px;
-  background: #090f1d;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(9, 15, 29, 0.2);
-}
-
-.contact-faq__submit-btn:hover {
-  background: var(--clr-orange, #e8611a);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(232, 97, 26, 0.35);
-}
-
-.contact-faq__form-feedback {
-  font-size: 0.825rem;
-  font-weight: 600;
-  color: #10b981;
-  margin-top: 10px;
+  margin: 0;
 }
 
 /* FAQ Accordion List */
@@ -6916,113 +6843,6 @@ body.page-contact .header__rfq-btn:hover {
   margin: 0;
 }
 
-/* SECTION 4: BOTTOM CALL TO ACTION BANNER */
-.contact-cta-section {
-  padding: 96px 0;
-  background-color: #ffffff;
-}
-
-.contact-cta-card {
-  position: relative;
-  background: linear-gradient(135deg, #090f1d 0%, #131e36 100%);
-  border-radius: 20px;
-  padding: 64px 56px;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(9, 15, 29, 0.18);
-  color: #ffffff;
-}
-
-.contact-cta-card__bg-pattern {
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(232, 97, 26, 0.15) 0%, rgba(232, 97, 26, 0) 70%);
-  pointer-events: none;
-}
-
-.contact-cta-card__content {
-  position: relative;
-  max-width: 640px;
-  z-index: 1;
-}
-
-.contact-cta-card__kicker {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--clr-orange, #e8611a);
-  margin-bottom: 12px;
-  display: inline-block;
-}
-
-.contact-cta-card__title {
-  font-size: clamp(2rem, 3.8vw, 2.75rem);
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-  margin-bottom: 16px;
-}
-
-.contact-cta-card__desc {
-  font-size: 1rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 32px;
-}
-
-.contact-cta-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.contact-cta-card__btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 13px 28px;
-  background: var(--clr-orange, #e8611a);
-  color: #ffffff;
-  font-size: 0.925rem;
-  font-weight: 700;
-  border-radius: 8px;
-  text-decoration: none;
-  box-shadow: 0 4px 16px rgba(232, 97, 26, 0.35);
-  transition: all 0.2s ease;
-}
-
-.contact-cta-card__btn-primary:hover {
-  background: #d45413;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232, 97, 26, 0.45);
-}
-
-.contact-cta-card__btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: transparent;
-  color: #ffffff;
-  font-size: 0.925rem;
-  font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.contact-cta-card__btn-secondary:hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateX(2px);
-}
-
 /* RESPONSIVE MEDIA QUERIES */
 @media (max-width: 992px) {
   .contact-hero__grid {
@@ -7030,10 +6850,6 @@ body.page-contact .header__rfq-btn:hover {
     gap: 48px;
   }
   .contact-location__grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  .contact-faq__grid {
     grid-template-columns: 1fr;
     gap: 40px;
   }
@@ -7053,22 +6869,6 @@ body.page-contact .header__rfq-btn:hover {
   }
   .contact-form__row--two-col {
     grid-template-columns: 1fr;
-  }
-  .contact-faq__quick-form {
-    flex-direction: column;
-    height: auto;
-    gap: 12px;
-  }
-  .contact-faq__input-wrap {
-    width: 100%;
-    height: 48px;
-  }
-  .contact-faq__submit-btn {
-    width: 100%;
-    height: 48px;
-  }
-  .contact-cta-card {
-    padding: 36px 24px;
   }
   .contact-map-popover {
     position: static;

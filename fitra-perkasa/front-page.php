@@ -473,14 +473,6 @@ get_header();
             </div>
 
             <div class="rfq-form__footer">
-              <label class="rfq-attach-btn" for="rfq-file">
-                <input type="file" id="rfq-file" name="attachment" style="display: none;" onchange="document.getElementById('file-chosen').textContent = this.files[0] ? this.files[0].name : '<?php echo esc_js( fitra_t_val( '+ ATTACH BOQ / DRAWING', '+ LAMPIRKAN BOQ / GAMBAR' ) ); ?>'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                </svg>
-                <span id="file-chosen"><?php echo fitra_t_val( '+ ATTACH BOQ / DRAWING', '+ LAMPIRKAN BOQ / GAMBAR' ); ?></span>
-              </label>
-
               <button type="submit" class="btn btn--orange btn--rfq-submit" id="btn-submit-rfq">
                 <?php echo fitra_t_val( 'SEND ENQUIRY', 'KIRIM PERMINTAAN' ); ?>
               </button>

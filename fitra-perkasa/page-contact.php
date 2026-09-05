@@ -88,50 +88,42 @@ get_header();
             <p class="contact-form-card__subtitle"><?php echo esc_html( fitra_t_val( 'You can reach us anytime', 'Anda dapat menghubungi kami kapan saja' ) ); ?></p>
 
             <form class="contact-form" id="contact-form" onsubmit="return false;">
-              <!-- Name Row: 2 Columns -->
+              <!-- Row 1: Name & Company, Country -->
               <div class="contact-form__row contact-form__row--two-col">
                 <div class="contact-form__field">
-                  <input type="text" id="cf-first-name" name="first_name" class="contact-form__input" placeholder="<?php echo esc_attr( fitra_t_val( 'First name', 'Nama depan' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'First name', 'Nama depan' ) ); ?>" required autocomplete="given-name">
+                  <label for="cf-name" class="contact-form__label"><?php echo fitra_t_val( 'NAME &amp; COMPANY', 'NAMA &amp; PERUSAHAAN' ); ?></label>
+                  <input type="text" id="cf-name" name="name" class="contact-form__input" placeholder="<?php echo esc_attr( fitra_t_val( 'John Doe, ACME Corp.', 'Budi Santoso, PT Industri Mandiri' ) ); ?>" required>
                 </div>
                 <div class="contact-form__field">
-                  <input type="text" id="cf-last-name" name="last_name" class="contact-form__input" placeholder="<?php echo esc_attr( fitra_t_val( 'Last name', 'Nama belakang' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'Last name', 'Nama belakang' ) ); ?>" required autocomplete="family-name">
+                  <label for="cf-country" class="contact-form__label"><?php echo fitra_t_val( 'COUNTRY', 'NEGARA' ); ?></label>
+                  <input type="text" id="cf-country" name="country" class="contact-form__input" value="Indonesia" required>
                 </div>
               </div>
 
-              <!-- Email Field -->
-              <div class="contact-form__field contact-form__field--has-icon">
-                <span class="contact-form__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                </span>
-                <input type="email" id="cf-email" name="email" class="contact-form__input" placeholder="<?php echo esc_attr( fitra_t_val( 'Your email', 'Email Anda' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'Your email', 'Email Anda' ) ); ?>" required autocomplete="email">
-              </div>
-
-              <!-- Phone Field with Country Code -->
-              <div class="contact-form__phone-group">
-                <div class="contact-form__country-code">
-                  <span class="contact-form__code-text">+62</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+              <!-- Row 2: Email, Phone / WhatsApp -->
+              <div class="contact-form__row contact-form__row--two-col">
+                <div class="contact-form__field">
+                  <label for="cf-email" class="contact-form__label"><?php echo fitra_t_val( 'EMAIL', 'EMAIL' ); ?></label>
+                  <input type="email" id="cf-email" name="email" class="contact-form__input" placeholder="name@company.com" required autocomplete="email">
                 </div>
-                <input type="tel" id="cf-phone" name="phone" class="contact-form__input contact-form__input--phone" placeholder="<?php echo esc_attr( fitra_t_val( 'Phone number', 'Nomor telepon' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'Phone number', 'Nomor telepon' ) ); ?>" autocomplete="tel">
+                <div class="contact-form__field">
+                  <label for="cf-phone" class="contact-form__label"><?php echo fitra_t_val( 'PHONE / WHATSAPP', 'TELEPON / WHATSAPP' ); ?></label>
+                  <input type="tel" id="cf-phone" name="phone" class="contact-form__input" placeholder="+62..." required autocomplete="tel">
+                </div>
               </div>
 
-              <!-- Message Field with Character Counter -->
+              <!-- Row 3: Specifications & Quantity -->
               <div class="contact-form__field">
-                <textarea id="cf-message" name="message" class="contact-form__textarea" placeholder="<?php echo esc_attr( fitra_t_val( 'How can we help?', 'Apa yang bisa kami bantu?' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'How can we help?', 'Apa yang bisa kami bantu?' ) ); ?>" maxlength="120" required rows="3"></textarea>
-                <div class="contact-form__counter">
-                  <span id="cf-counter-val">0</span>/120
-                </div>
+                <label for="cf-specs" class="contact-form__label"><?php echo fitra_t_val( 'SPECIFICATIONS &amp; QUANTITY', 'SPESIFIKASI &amp; JUMLAH KEBUTUHAN' ); ?></label>
+                <textarea id="cf-specs" name="specs" class="contact-form__textarea" rows="3" placeholder="<?php echo esc_attr( fitra_t_val( 'Describe your requirements, dimensions, grades, standards...', 'Jelaskan kebutuhan material, dimensi, grade, standar teknis...' ) ); ?>" required></textarea>
               </div>
 
-              <!-- Submit Button -->
-              <button type="submit" class="contact-form__submit" id="cf-submit-btn">
-                <span><?php echo esc_html( fitra_t_val( 'Submit', 'Kirim Pesan' ) ); ?></span>
-              </button>
+              <!-- Row 4: Submit Button -->
+              <div class="contact-form__footer">
+                <button type="submit" class="contact-form__submit btn btn--orange btn--rfq-submit" id="cf-submit-btn">
+                  <span><?php echo fitra_t_val( 'SEND ENQUIRY', 'KIRIM PERMINTAAN' ); ?></span>
+                </button>
+              </div>
 
               <!-- Agreement Notice -->
               <p class="contact-form__terms">
@@ -154,7 +146,7 @@ get_header();
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span><?php echo esc_html( fitra_t_val( 'Thank you! Your message has been received and our team will contact you shortly.', 'Terima kasih! Pesan Anda telah kami terima dan tim kami akan segera menghubungi Anda.' ) ); ?></span>
+                <span><?php echo esc_html( fitra_t_val( 'Thank you! Your quotation request has been submitted. Our commercial engineering team will respond within 2 working days.', 'Terima kasih! Permintaan penawaran Anda telah kami terima. Tim engineering kami akan merespons dalam 2 hari kerja.' ) ); ?></span>
               </div>
             </form>
           </div>
@@ -276,36 +268,22 @@ get_header();
   </section>
 
   <!-- =========================================================
-       SECTION 3: FAQ ACCORDION ("DO YOU HAVE ANY QUESTIONS?")
+       SECTION 3: FAQ ACCORDION (CENTERED)
        ========================================================= -->
   <section class="contact-faq-section" id="contact-faq">
     <div class="contact-container">
-      <div class="contact-faq__grid">
+      <div class="contact-faq__wrap">
 
-        <!-- Left Column: Title & Quick Inquiry Input -->
-        <div class="contact-faq__lead">
+        <!-- Centered Section Header -->
+        <div class="contact-faq__header">
           <span class="contact-kicker"><?php echo esc_html( fitra_t_val( 'FAQ', 'TANYA JAWAB' ) ); ?></span>
-          <h2 class="contact-faq__title"><?php echo esc_html( fitra_t_val( 'Do you have any questions for us?', 'Ada pertanyaan untuk kami?' ) ); ?></h2>
+          <h2 class="contact-faq__title"><?php echo esc_html( fitra_t_val( 'Frequently Asked Questions', 'Pertanyaan yang Sering Diajukan' ) ); ?></h2>
           <p class="contact-faq__desc">
             <?php echo esc_html( fitra_t_val( 'If there are questions you want to ask, our technical engineering specialists will provide comprehensive answers to support your project.', 'Jika ada pertanyaan yang ingin Anda ajukan, tim spesialis rekayasa teknis kami siap memberikan jawaban komprehensif untuk mendukung proyek Anda.' ) ); ?>
           </p>
-
-          <form class="contact-faq__quick-form" id="contact-faq-form" onsubmit="return false;">
-            <div class="contact-faq__input-wrap">
-              <span class="contact-faq__input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </span>
-              <input type="email" id="faq-quick-email" class="contact-faq__input" placeholder="<?php echo esc_attr( fitra_t_val( 'Enter your email', 'Masukkan email Anda' ) ); ?>" aria-label="<?php echo esc_attr( fitra_t_val( 'Enter your email', 'Masukkan email Anda' ) ); ?>" required autocomplete="email">
-            </div>
-            <button type="submit" class="contact-faq__submit-btn" id="faq-submit-btn"><?php echo esc_html( fitra_t_val( 'Submit', 'Kirim' ) ); ?></button>
-          </form>
-          <p class="contact-faq__form-feedback" id="faq-feedback" style="display: none;"><?php echo esc_html( fitra_t_val( 'Request sent! Our team will get in touch with you.', 'Permintaan terkirim! Tim kami akan menghubungi Anda.' ) ); ?></p>
         </div>
 
-        <!-- Right Column: Accordion List -->
+        <!-- Centered Accordion List -->
         <div class="contact-faq__accordion" id="contact-accordion">
 
           <!-- FAQ Item 1 -->
@@ -382,29 +360,52 @@ get_header();
     </div>
   </section>
 
-  <!-- =========================================================
-       SECTION 4: BOTTOM CTA BANNER (HOMEPAGE AESTHETIC)
-       ========================================================= -->
-  <section class="contact-cta-section">
-    <div class="contact-container">
-      <div class="contact-cta-card">
-        <div class="contact-cta-card__bg-pattern"></div>
-        <div class="contact-cta-card__content">
-          <span class="contact-cta-card__kicker"><?php echo esc_html( fitra_t_val( 'START YOUR PARTNERSHIP', 'MULAI KERJASAMA ANDA' ) ); ?></span>
-          <h2 class="contact-cta-card__title">
-            <?php echo esc_html( fitra_t_val( 'Ready to experience the speed and reliability of Fitra Perkasa Inti?', 'Siap merasakan kecepatan dan keandalan Fitra Perkasa Inti?' ) ); ?>
+  <!-- ===== 4. CONSULTATION CTA SECTION ===== -->
+  <section class="contact-cta-v2" id="contact-cta">
+    <div class="cta-banner-wrapper">
+      <div class="cta-banner-card">
+        <!-- Technical Vector Globe Motif -->
+        <div class="cta-banner-card__bg" aria-hidden="true">
+          <svg viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg" class="cta-banner-card__globe">
+            <defs>
+              <radialGradient id="cta-globe-glow-contact" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e8611a" stop-opacity="0.22"/>
+                <stop offset="60%" stop-color="#0e1726" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#060b13" stop-opacity="0"/>
+              </radialGradient>
+              <pattern id="cta-dot-grid-contact" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.2" fill="rgba(255,255,255,0.08)"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#cta-dot-grid-contact)"/>
+            <circle cx="500" cy="250" r="230" fill="url(#cta-globe-glow-contact)"/>
+            <!-- Wireframe Globe Meridians & Parallels -->
+            <circle cx="500" cy="250" r="210" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <ellipse cx="500" cy="250" rx="140" ry="210" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="250" rx="70" ry="210" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <line x1="500" y1="40" x2="500" y2="460" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <line x1="290" y1="250" x2="710" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+            <ellipse cx="500" cy="170" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <ellipse cx="500" cy="330" rx="190" ry="45" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="cta-banner-card__content">
+          <span class="cta-banner-card__tag">
+            <span class="meta-dash">&mdash;&mdash;</span> <?php echo fitra_t_val( 'START YOUR PARTNERSHIP', 'MULAI KERJASAMA ANDA' ); ?> <span class="meta-dash">&mdash;&mdash;</span>
+          </span>
+          <h2 class="cta-banner-card__title">
+            <?php echo fitra_t_val( 'Ready to experience the speed and reliability of Fitra Perkasa Inti?', 'Siap merasakan kecepatan dan keandalan Fitra Perkasa Inti?' ); ?>
           </h2>
-          <p class="contact-cta-card__desc">
-            <?php echo esc_html( fitra_t_val( 'Contact our technical consultants today for material specification advice and large-scale industrial procurement solutions.', 'Hubungi konsultan teknis kami hari ini untuk konsultasi spesifikasi material dan solusi pengadaan industri skala besar.' ) ); ?>
+          <p class="cta-banner-card__desc">
+            <?php echo fitra_t_val( 'Contact our technical consultants today for material specification advice and large-scale industrial procurement solutions.', 'Hubungi konsultan teknis kami hari ini untuk konsultasi spesifikasi material dan solusi pengadaan industri skala besar.' ); ?>
           </p>
-          <div class="contact-cta-card__actions">
-            <a href="#contact-form-card" class="contact-cta-card__btn-primary"><?php echo esc_html( fitra_t_val( 'Get Started', 'Mulai Sekarang' ) ); ?></a>
-            <a href="<?php echo esc_url( home_url( '/products/' ) ); ?>" class="contact-cta-card__btn-secondary">
-              <span><?php echo esc_html( fitra_t_val( 'Explore Products', 'Jelajahi Produk' ) ); ?></span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
+          <div class="cta-banner-card__actions">
+            <a href="#contact-form-card" class="btn cta-banner-card__btn-primary">
+              <?php echo fitra_t_val( 'Talk to sales', 'Hubungi Sales' ); ?>
+            </a>
+            <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="btn cta-banner-card__btn-secondary">
+              <?php echo fitra_t_val( 'Request a demo', 'Minta Penawaran (RFQ)' ); ?>
             </a>
           </div>
         </div>
