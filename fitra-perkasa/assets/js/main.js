@@ -661,9 +661,10 @@ document.addEventListener("DOMContentLoaded", () => {
             for (let i = 1; i <= totalPages; i++) {
               const btn = document.createElement("button");
               btn.type = "button";
-              btn.className = `news-page-btn ${i === currentPage ? "news-page-btn--active" : ""}`;
+              btn.className = `products-pagination__page news-page-btn ${i === currentPage ? "products-pagination__page--active news-page-btn--active" : ""}`;
               btn.textContent = String(i);
               btn.dataset.page = String(i);
+              btn.setAttribute("aria-label", `Page ${i}`);
               btn.addEventListener("click", () => {
                 currentPage = i;
                 renderNews(true);
@@ -672,6 +673,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
+      }
+
+      // Update Showing Count Info
+      const newsShowingCount = document.getElementById("news-showing-count");
+      const newsTotalCount = document.getElementById("news-total-count");
+      if (newsShowingCount && newsTotalCount) {
+        const fromCount = totalMatches === 0 ? 0 : startIndex + 1;
+        const toCount = Math.min(endIndex, totalMatches);
+        newsShowingCount.textContent = `${fromCount}-${toCount}`;
+        newsTotalCount.textContent = String(totalMatches);
       }
 
       // 7. Scroll smoothly if requested

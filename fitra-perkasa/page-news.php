@@ -341,15 +341,30 @@ if ( ! empty( $db_articles ) ) {
         <button type="button" class="news-empty__btn" id="news-reset-btn"><?php echo esc_html( fitra_t_val( 'Reset Filter', 'Reset Filter' ) ); ?></button>
       </div>
 
-      <!-- Pagination -->
-      <div class="news-pagination" id="news-pagination">
-        <button type="button" class="news-page-btn news-page-btn--nav news-page-btn--prev" id="news-prev-btn" aria-label="<?php echo esc_attr( fitra_t_val( 'Previous page', 'Halaman sebelumnya' ) ); ?>">&lsaquo;</button>
-        <div class="news-page-numbers" id="news-page-numbers">
-          <button type="button" class="news-page-btn news-page-btn--active" data-page="1">1</button>
-          <button type="button" class="news-page-btn" data-page="2">2</button>
+      <!-- ===== NEWS & EVENTS PAGINATION BAR ===== -->
+      <nav class="news-pagination products-pagination" id="news-pagination" aria-label="<?php echo esc_attr( fitra_t_val( 'News & Events Pagination', 'Navigasi Halaman Berita & Acara' ) ); ?>">
+        <div class="products-pagination__inner news-pagination__inner">
+          <button type="button" class="products-pagination__btn products-pagination__btn--prev news-page-btn--nav news-page-btn--prev" id="news-prev-btn" aria-label="<?php echo esc_attr( fitra_t_val( 'Previous Page', 'Halaman Sebelumnya' ) ); ?>" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span><?php echo fitra_t_val( 'PREV', 'SEBELUMNYA' ); ?></span>
+          </button>
+          <div class="products-pagination__pages news-page-numbers" id="news-page-numbers">
+            <button type="button" class="products-pagination__page products-pagination__page--active news-page-btn news-page-btn--active" data-page="1">1</button>
+            <button type="button" class="products-pagination__page news-page-btn" data-page="2">2</button>
+          </div>
+          <button type="button" class="products-pagination__btn products-pagination__btn--next news-page-btn--nav news-page-btn--next" id="news-next-btn" aria-label="<?php echo esc_attr( fitra_t_val( 'Next Page', 'Halaman Berikutnya' ) ); ?>">
+            <span><?php echo fitra_t_val( 'NEXT', 'SELANJUTNYA' ); ?></span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
         </div>
-        <button type="button" class="news-page-btn news-page-btn--nav news-page-btn--next" id="news-next-btn" aria-label="<?php echo esc_attr( fitra_t_val( 'Next page', 'Halaman berikutnya' ) ); ?>">&rsaquo;</button>
-      </div>
+        <div class="products-pagination__info news-pagination__info" id="news-pagination-info">
+          <?php echo fitra_t_val( 'Showing <span id="news-showing-count">1-6</span> of <span id="news-total-count">' . count( $articles ) . '</span> articles', 'Menampilkan <span id="news-showing-count">1-6</span> dari <span id="news-total-count">' . count( $articles ) . '</span> artikel' ); ?>
+        </div>
+      </nav>
     </div>
   </section>
 
