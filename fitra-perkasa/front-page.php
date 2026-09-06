@@ -424,7 +424,7 @@ get_header();
           <p class="home-rfq__desc"><?php echo fitra_t_val( 'Attach a BoQ or drawing and we will return a priced offer, delivery lead and Country of origin for every line item.', 'Lampirkan BoQ atau gambar teknis, dan tim engineering kami akan menyiapkan penawaran harga, estimasi pengiriman, serta sertifikasi asal material.' ); ?></p>
 
           <div class="home-rfq__badges">
-            <a href="<?php echo esc_url( home_url( '/profile/' ) ); ?>" class="rfq-pill-btn">
+            <a href="<?php echo esc_url( fitra_url( '/profile/' ) ); ?>" class="rfq-pill-btn">
               <span><?php echo fitra_t_val( 'Download Company Profile', 'Unduh Profil Perusahaan' ); ?></span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -432,7 +432,7 @@ get_header();
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
             </a>
-            <a href="<?php echo esc_url( home_url( '/products/' ) ); ?>" class="rfq-pill-btn">
+            <a href="<?php echo esc_url( fitra_url( '/products/' ) ); ?>" class="rfq-pill-btn">
               <span><?php echo fitra_t_val( 'View Product Catalogue', 'Lihat Katalog Produk' ); ?></span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>

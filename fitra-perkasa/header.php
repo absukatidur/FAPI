@@ -114,7 +114,7 @@
           <button type="button" class="header__lang-btn <?php echo ( 'id' === $current_lang ) ? 'header__lang-btn--active' : ''; ?>" data-lang="id" data-url="<?php echo esc_url( $lang_urls['id'] ); ?>" aria-label="Ganti ke Bahasa Indonesia">ID</button>
         </div>
 
-        <a href="#rfq" class="header__rfq-btn" id="cta-rfq"><?php echo esc_html( fitra_t( 'nav_rfq' ) ); ?></a>
+        <a href="<?php echo esc_url( fitra_url( '/#rfq' ) ); ?>" class="header__rfq-btn" id="cta-rfq"><?php echo esc_html( fitra_t( 'nav_rfq' ) ); ?></a>
 
         <button class="header__hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
           <span></span>

@@ -132,25 +132,92 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------------
-     5. Smooth scroll for in-page anchors
+     5. Smooth scroll for in-page anchors & RFQ portal
      ------------------------------------------------ */
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      const href = this.getAttribute("href");
-      if (href && href.length > 1) {
-        const target = document.querySelector(href);
-        if (target) {
-          e.preventDefault();
-          const offset = 80;
-          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
-          window.scrollTo({
-            top: targetPosition,
-            behavior: "smooth"
-          });
-        }
-      }
+  const scrollToRfq = (smooth = true) => {
+    const target = document.getElementById("rfq");
+    if (!target) return false;
+    const headerEl = document.getElementById("header");
+    const headerHeight = headerEl ? headerEl.offsetHeight : 70;
+    const offset = headerHeight + 16;
+    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({
+      top: Math.max(0, targetPosition),
+      behavior: smooth ? "smooth" : "auto"
     });
+    setTimeout(() => {
+      const firstInput = document.getElementById("rfq-name");
+      if (firstInput) {
+        firstInput.focus({ preventScroll: true });
+      }
+    }, smooth ? 650 : 50);
+    return true;
+  };
+
+  const isRfqTarget = (anchor) => {
+    if (!anchor) return false;
+    if (anchor.id === "cta-rfq" || anchor.classList.contains("header__link--mobile-rfq")) {
+      return true;
+    }
+    const href = anchor.getAttribute("href") || "";
+    return href === "#rfq" || href.endsWith("/#rfq") || href.includes("/#rfq?") || href.includes("/?lang=id#rfq") || href.includes("#rfq");
+  };
+
+  document.querySelectorAll("a").forEach((anchor) => {
+    const href = anchor.getAttribute("href");
+    if (!href) return;
+
+    // Special handling for RFQ portal links
+    if (isRfqTarget(anchor)) {
+      anchor.addEventListener("click", (e) => {
+        const rfqEl = document.getElementById("rfq");
+        if (rfqEl) {
+          // Already on homepage where #rfq is present
+          e.preventDefault();
+          if (navMenu && navMenu.classList.contains("open")) {
+            navMenu.classList.remove("open");
+            if (hamburger) hamburger.classList.remove("active");
+            if (header) header.classList.remove("header--menu-open");
+            document.body.classList.remove("menu-open");
+          }
+          scrollToRfq(true);
+          if (history.pushState) {
+            history.pushState(null, "", "#rfq");
+          }
+        }
+        // If not on homepage, let browser navigate to homepage URL with #rfq
+      });
+      return;
+    }
+
+    // Generic in-page hash links
+    if (href.startsWith("#") && href.length > 1) {
+      anchor.addEventListener("click", function (e) {
+        try {
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            const headerEl = document.getElementById("header");
+            const headerHeight = headerEl ? headerEl.offsetHeight : 70;
+            const offset = headerHeight + 16;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({
+              top: Math.max(0, targetPosition),
+              behavior: "smooth"
+            });
+          }
+        } catch (err) {}
+      });
+    }
   });
+
+  // Handle direct navigation to #rfq on page load (e.g. coming from other pages)
+  if (window.location.hash === "#rfq") {
+    // Delay slightly to let fonts, CSS, and DOM layouts stabilize
+    setTimeout(() => {
+      scrollToRfq(true);
+    }, 200);
+  }
 
   /* ------------------------------------------------
      6. Stagger animation delay

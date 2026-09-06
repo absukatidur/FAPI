@@ -554,7 +554,7 @@ get_header();
             <a href="<?php echo esc_url( fitra_url( '/contact/' ) ); ?>" class="btn cta-banner-card__btn-primary">
               <?php echo fitra_t_val( 'Talk to sales', 'Hubungi Sales' ); ?>
             </a>
-            <a href="<?php echo esc_url( home_url( '/#rfq' ) ); ?>" class="btn cta-banner-card__btn-secondary">
+            <a href="<?php echo esc_url( fitra_url( '/#rfq' ) ); ?>" class="btn cta-banner-card__btn-secondary">
               <?php echo fitra_t_val( 'Request a demo', 'Minta Penawaran (RFQ)' ); ?>
             </a>
           </div>
