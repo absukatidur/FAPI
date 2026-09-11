@@ -11,8 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Return all news & event articles keyed by slug.
+ * Queries fitra_news CPT first, falls back to hardcoded array.
  */
 function fitra_get_news_articles() {
+    // ── Try CPT query first ──
+    $cpt_articles = fitra_get_news_from_cpt();
+    if ( ! empty( $cpt_articles ) ) {
+        return $cpt_articles;
+    }
+
+    // ── Fallback: hardcoded news data ──
     $img = get_template_directory_uri() . '/assets/images/';
 
     return array(
@@ -321,8 +329,18 @@ function fitra_get_news_articles() {
 
 /**
  * Get a single news article by slug with fallback.
+ * Queries fitra_news CPT first, then hardcoded, then WP posts.
  */
 function fitra_get_news_article( $slug ) {
+    // ── Try CPT query first ──
+    if ( ! empty( $slug ) && post_type_exists( 'fitra_news' ) ) {
+        $cpt_article = fitra_get_single_news_from_cpt( $slug );
+        if ( $cpt_article ) {
+            return $cpt_article;
+        }
+    }
+
+    // ── Fallback: hardcoded articles ──
     $articles = fitra_get_news_articles();
 
     if ( ! empty( $slug ) && isset( $articles[ $slug ] ) ) {
@@ -339,7 +357,7 @@ function fitra_get_news_article( $slug ) {
             }
         }
 
-        // Check if there is a real WordPress database post
+        // Check if there is a real WordPress database post (legacy 'post' type)
         $db_posts = get_posts( array(
             'name'           => $slug_clean,
             'post_type'      => 'post',
@@ -384,4 +402,176 @@ function fitra_get_news_article( $slug ) {
 
     // Default to the featured story
     return reset( $articles );
+}
+
+/**
+ * Query news articles from the fitra_news CPT.
+ *
+ * @return array Articles keyed by slug in the same format as the hardcoded array
+ */
+function fitra_get_news_from_cpt() {
+    if ( ! post_type_exists( 'fitra_news' ) ) {
+        return array();
+    }
+
+    $lang = function_exists( 'fitra_get_lang' ) ? fitra_get_lang() : 'en';
+
+    $args = array(
+        'post_type'      => 'fitra_news',
+        'post_status'    => 'publish',
+        'posts_per_page' => 100,
+        'orderby'        => 'date',
+        'order'          => 'DESC',
+    );
+
+    if ( function_exists( 'pll_current_language' ) ) {
+        $args['lang'] = $lang;
+    }
+
+    $posts = get_posts( $args );
+
+    if ( empty( $posts ) ) {
+        return array();
+    }
+
+    $articles = array();
+    foreach ( $posts as $post ) {
+        $article = fitra_build_news_from_cpt( $post );
+        $slug = $article['slug'];
+        $articles[ $slug ] = $article;
+    }
+
+    return $articles;
+}
+
+/**
+ * Get a single news article from the CPT by slug.
+ *
+ * @param string $slug Article slug
+ * @return array|null
+ */
+function fitra_get_single_news_from_cpt( $slug ) {
+    $lang = function_exists( 'fitra_get_lang' ) ? fitra_get_lang() : 'en';
+
+    // Try exact slug match
+    $args = array(
+        'post_type'      => 'fitra_news',
+        'post_status'    => 'publish',
+        'posts_per_page' => 1,
+        'name'           => $slug,
+    );
+
+    if ( function_exists( 'pll_current_language' ) ) {
+        $args['lang'] = $lang;
+    }
+
+    $posts = get_posts( $args );
+
+    // If not found, try with the original slug stored in meta
+    if ( empty( $posts ) ) {
+        $args_meta = array(
+            'post_type'      => 'fitra_news',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'meta_key'       => '_news_original_slug',
+            'meta_value'     => $slug,
+        );
+        if ( function_exists( 'pll_current_language' ) ) {
+            $args_meta['lang'] = $lang;
+        }
+        $posts = get_posts( $args_meta );
+    }
+
+    if ( empty( $posts ) ) {
+        return null;
+    }
+
+    return fitra_build_news_from_cpt( $posts[0] );
+}
+
+/**
+ * Build a news article data array from a CPT post, matching the hardcoded format.
+ *
+ * @param WP_Post $post The news post object
+ * @return array
+ */
+function fitra_build_news_from_cpt( $post ) {
+    $img_base = get_template_directory_uri() . '/assets/images/';
+
+    $slug = get_post_meta( $post->ID, '_news_original_slug', true );
+    if ( empty( $slug ) ) {
+        $slug = $post->post_name;
+        $slug = preg_replace( '/-id$/', '', $slug );
+    }
+
+    // Image: ACF/meta > Featured image > fallback
+    $image = get_post_meta( $post->ID, '_news_image_url', true );
+    if ( empty( $image ) && has_post_thumbnail( $post->ID ) ) {
+        $image = get_the_post_thumbnail_url( $post->ID, 'full' );
+    }
+    if ( empty( $image ) ) {
+        $image = $img_base . 'factory-operations.jpg';
+    }
+
+    // Author
+    $author_name = get_post_meta( $post->ID, 'news_author_name', true ) ?: 'Tim Editorial';
+    $author_role = get_post_meta( $post->ID, 'news_author_role', true ) ?: 'Corporate Communications';
+
+    // Features: parse "icon|title|description" lines
+    $features_raw = get_post_meta( $post->ID, 'news_features', true ) ?: '';
+    $features = array();
+    if ( ! empty( $features_raw ) ) {
+        $lines = array_filter( array_map( 'trim', explode( "\n", $features_raw ) ) );
+        foreach ( $lines as $line ) {
+            $parts = explode( '|', $line, 3 );
+            $features[] = array(
+                'icon'  => trim( $parts[0] ?? 'check' ),
+                'title' => trim( $parts[1] ?? '' ),
+                'desc'  => trim( $parts[2] ?? '' ),
+            );
+        }
+    }
+
+    // Event badge
+    $event_day   = get_post_meta( $post->ID, 'news_event_day', true );
+    $event_month = get_post_meta( $post->ID, 'news_event_month', true );
+    $event_badge = null;
+    if ( ! empty( $event_day ) && ! empty( $event_month ) ) {
+        $event_badge = array( 'day' => $event_day, 'month' => $event_month );
+    }
+
+    // Determine type from taxonomy
+    $terms = wp_get_post_terms( $post->ID, 'fitra_news_type', array( 'fields' => 'slugs' ) );
+    $type = ( ! empty( $terms ) && ! is_wp_error( $terms ) ) ? $terms[0] : 'berita';
+
+    return array(
+        'slug'          => $slug,
+        'type'          => $type,
+        'category'      => get_post_meta( $post->ID, 'news_category_label', true ) ?: '',
+        'date'          => get_post_meta( $post->ID, 'news_date_display', true ) ?: get_the_date( 'd M Y', $post ),
+        'badge'         => get_post_meta( $post->ID, 'news_badge', true ) ?: '',
+        'meta_left'     => get_post_meta( $post->ID, 'news_meta_left', true ) ?: '',
+        'title'         => $post->post_title,
+        'desc'          => get_post_meta( $post->ID, 'news_featured_desc', true ) ?: '',
+        'author'        => array(
+            'name'   => $author_name,
+            'role'   => $author_role,
+            'avatar' => $img_base . 'hero-workers.jpg',
+        ),
+        'image'         => $image,
+        'pullquote'     => get_post_meta( $post->ID, 'news_pullquote', true ) ?: '',
+        'section1_title'=> get_post_meta( $post->ID, 'news_section1_title', true ) ?: '',
+        'section1_p1'   => get_post_meta( $post->ID, 'news_section1_p1', true ) ?: '',
+        'section1_p2'   => get_post_meta( $post->ID, 'news_section1_p2', true ) ?: '',
+        'features_title'=> get_post_meta( $post->ID, 'news_features_title', true ) ?: '',
+        'features'      => $features,
+        'section2_title'=> get_post_meta( $post->ID, 'news_section2_title', true ) ?: '',
+        'section2_p1'   => get_post_meta( $post->ID, 'news_section2_p1', true ) ?: '',
+        'quote'         => get_post_meta( $post->ID, 'news_quote', true ) ?: '',
+        'quote_author'  => get_post_meta( $post->ID, 'news_quote_author', true ) ?: '',
+        'section2_p2'   => get_post_meta( $post->ID, 'news_section2_p2', true ) ?: '',
+        'event_badge'   => $event_badge,
+        'link'          => home_url( '/news/' . $slug . '/' ),
+        'link_text'     => function_exists( 'fitra_t_val' ) ? fitra_t_val( 'Read More', 'Baca Selengkapnya' ) : 'Read More',
+    );
 }

@@ -12,12 +12,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Return all product data keyed by slug.
+ * Queries fitra_product CPT first, falls back to hardcoded array.
  *
  * @param string|null $lang Language code ('en' or 'id')
  * @return array
  */
 function fitra_get_products( $lang = null ) {
     $active_lang = $lang ? $lang : ( function_exists( 'fitra_get_lang' ) ? fitra_get_lang() : 'en' );
+
+    // ── Try CPT query first ──
+    $cpt_products = fitra_get_products_from_cpt( $active_lang );
+    if ( ! empty( $cpt_products ) ) {
+        return $cpt_products;
+    }
+
+    // ── Fallback: hardcoded product data ──
     $img = get_template_directory_uri() . '/assets/images/';
 
     $products = array(
@@ -748,4 +757,158 @@ function fitra_get_product( $slug, $lang = null ) {
 
     // Default to first product if slug is generic or empty
     return ! empty( $products ) ? reset( $products ) : null;
+}
+
+/**
+ * Query products from the fitra_product CPT.
+ *
+ * @param string $lang Language code ('en' or 'id')
+ * @return array Products keyed by slug in the same format as the hardcoded array
+ */
+function fitra_get_products_from_cpt( $lang = 'en' ) {
+    if ( ! post_type_exists( 'fitra_product' ) ) {
+        return array();
+    }
+
+    $args = array(
+        'post_type'      => 'fitra_product',
+        'post_status'    => 'publish',
+        'posts_per_page' => 100,
+        'orderby'        => 'menu_order date',
+        'order'          => 'ASC',
+    );
+
+    // If Polylang is active, filter by language
+    if ( function_exists( 'pll_current_language' ) ) {
+        $args['lang'] = $lang;
+    }
+
+    $posts = get_posts( $args );
+
+    if ( empty( $posts ) ) {
+        return array();
+    }
+
+    $products = array();
+    $img_base = get_template_directory_uri() . '/assets/images/';
+
+    foreach ( $posts as $post ) {
+        $slug = get_post_meta( $post->ID, 'product_slug', true );
+        if ( empty( $slug ) ) {
+            $slug = $post->post_name;
+            // Strip language suffix if present
+            $slug = preg_replace( '/-id$/', '', $slug );
+        }
+
+        $product = fitra_build_product_from_cpt( $post, $img_base );
+        $products[ $slug ] = $product;
+    }
+
+    return $products;
+}
+
+/**
+ * Build a product data array from a CPT post, matching the hardcoded format.
+ *
+ * @param WP_Post $post     The product post object
+ * @param string  $img_base Base URL for theme images
+ * @return array
+ */
+function fitra_build_product_from_cpt( $post, $img_base = '' ) {
+    if ( empty( $img_base ) ) {
+        $img_base = get_template_directory_uri() . '/assets/images/';
+    }
+
+    $slug       = get_post_meta( $post->ID, 'product_slug', true ) ?: $post->post_name;
+    $slug       = preg_replace( '/-id$/', '', $slug );
+    $cat_en     = get_post_meta( $post->ID, 'product_category', true ) ?: '';
+    $cat_label  = get_post_meta( $post->ID, 'product_category_label', true ) ?: $cat_en;
+    $brand      = get_post_meta( $post->ID, 'product_brand', true ) ?: '';
+    $stock      = get_post_meta( $post->ID, 'product_stock_status', true ) ?: 'IN STOCK';
+    $full_title = get_post_meta( $post->ID, 'product_full_title', true ) ?: $post->post_title;
+    $desc       = get_post_meta( $post->ID, 'product_description', true ) ?: '';
+
+    // Image: ACF image field > Featured image > fallback
+    $image = get_post_meta( $post->ID, 'product_image', true );
+    if ( empty( $image ) && has_post_thumbnail( $post->ID ) ) {
+        $image = get_the_post_thumbnail_url( $post->ID, 'full' );
+    }
+    if ( empty( $image ) ) {
+        $image = $img_base . 'product-pipes.jpg';
+    }
+
+    // Gallery
+    $gallery_raw = get_post_meta( $post->ID, 'product_gallery', true );
+    $gallery = array();
+    if ( ! empty( $gallery_raw ) && is_array( $gallery_raw ) ) {
+        $gallery = $gallery_raw;
+    } elseif ( ! empty( $gallery_raw ) && is_string( $gallery_raw ) ) {
+        $gallery = array_filter( array_map( 'trim', explode( "\n", $gallery_raw ) ) );
+    }
+    if ( empty( $gallery ) ) {
+        $gallery = array( $image );
+    }
+
+    // Specs: parse "KEY = VALUE" lines
+    $specs_raw = get_post_meta( $post->ID, 'product_specs', true ) ?: '';
+    $specs = array();
+    if ( ! empty( $specs_raw ) ) {
+        $lines = array_filter( array_map( 'trim', explode( "\n", $specs_raw ) ) );
+        foreach ( $lines as $line ) {
+            $parts = explode( '=', $line, 2 );
+            if ( count( $parts ) === 2 ) {
+                $specs[ trim( $parts[0] ) ] = trim( $parts[1] );
+            }
+        }
+    }
+
+    // Documents: prefer new structured array, fall back to old text format
+    $docs_rows = get_post_meta( $post->ID, 'product_documents_rows', true );
+    $documents = array();
+    if ( ! empty( $docs_rows ) && is_array( $docs_rows ) ) {
+        foreach ( $docs_rows as $row ) {
+            if ( ! empty( $row['name'] ) || ! empty( $row['url'] ) ) {
+                $documents[] = array(
+                    'name' => $row['name'] ?? '',
+                    'url'  => $row['url'] ?? '',
+                    'type' => $row['type'] ?? 'PDF',
+                    'size' => $row['size'] ?? '',
+                );
+            }
+        }
+    }
+    if ( empty( $documents ) ) {
+        $docs_raw = get_post_meta( $post->ID, 'product_documents', true ) ?: '';
+        if ( ! empty( $docs_raw ) ) {
+            $lines = array_filter( array_map( 'trim', explode( "\n", $docs_raw ) ) );
+            foreach ( $lines as $line ) {
+                $parts = explode( '|', $line );
+                $documents[] = array(
+                    'name' => trim( $parts[0] ?? '' ),
+                    'url'  => '',
+                    'type' => trim( $parts[1] ?? 'PDF' ),
+                    'size' => trim( $parts[2] ?? '' ),
+                );
+            }
+        }
+    }
+
+    // Determine cat_key from category
+    $cat_key = fitra_get_product_category_key( $cat_en );
+
+    return array(
+        'slug'       => $slug,
+        'category_en'=> $cat_en,
+        'category'   => $cat_label,
+        'brand'      => $brand,
+        'stock'      => $stock,
+        'title'      => $post->post_title,
+        'full_title' => $full_title,
+        'desc'       => $desc,
+        'image'      => $image,
+        'gallery'    => $gallery,
+        'specs'      => $specs,
+        'documents'  => $documents,
+        'cat_key'    => $cat_key,
+    );
 }

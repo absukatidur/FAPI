@@ -12,6 +12,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once get_template_directory() . '/inc/i18n.php';
 require_once get_template_directory() . '/inc/polylang-integration.php';
 
+// Custom Post Types
+require_once get_template_directory() . '/inc/cpt-product.php';
+require_once get_template_directory() . '/inc/cpt-news.php';
+
+// ACF Field Groups (requires ACF plugin)
+if ( class_exists( 'ACF' ) ) {
+    require_once get_template_directory() . '/inc/acf-fields-product.php';
+    require_once get_template_directory() . '/inc/acf-fields-news.php';
+}
+
+// Product Documents meta box (native WP, replaces ACF documents textarea)
+require_once get_template_directory() . '/inc/metabox-product-documents.php';
+
+// Yoast SEO Integration & Schema Enhancements
+require_once get_template_directory() . '/inc/seo-yoast-integration.php';
+
 /* --------------------------------------------------
    1. Theme Setup
    -------------------------------------------------- */
@@ -295,6 +311,9 @@ function fitra_img( $filename ) {
 require_once get_template_directory() . '/inc/product-data.php';
 require_once get_template_directory() . '/inc/news-data.php';
 
+// Data migration (one-time, from hardcoded arrays to CPTs)
+require_once get_template_directory() . '/inc/migrate-data.php';
+
 /* --------------------------------------------------
    5. Auto-create pages on theme activation
    -------------------------------------------------- */
@@ -518,6 +537,20 @@ function fitra_perkasa_custom_template_routing( $template ) {
             status_header( 200 );
         }
         if ( ! empty( $parts[1] ) ) {
+            $slug_check = sanitize_title( $parts[1] );
+            $cpt_post   = get_page_by_path( $slug_check, OBJECT, 'fitra_product' );
+            if ( ! $cpt_post && function_exists( 'pll_current_language' ) && pll_current_language() === 'id' ) {
+                $cpt_post = get_page_by_path( $slug_check . '-id', OBJECT, 'fitra_product' );
+            }
+            if ( $cpt_post && $wp_query ) {
+                $wp_query->is_single          = true;
+                $wp_query->is_singular        = true;
+                $wp_query->is_page            = false;
+                $wp_query->queried_object     = $cpt_post;
+                $wp_query->queried_object_id  = $cpt_post->ID;
+                $wp_query->post               = $cpt_post;
+                $GLOBALS['post']              = $cpt_post;
+            }
             $detail_template = locate_template( array( 'page-product-detail.php' ) );
             if ( $detail_template ) {
                 return $detail_template;
@@ -538,6 +571,20 @@ function fitra_perkasa_custom_template_routing( $template ) {
             status_header( 200 );
         }
         if ( ! empty( $parts[1] ) ) {
+            $slug_check = sanitize_title( $parts[1] );
+            $cpt_post   = get_page_by_path( $slug_check, OBJECT, 'fitra_news' );
+            if ( ! $cpt_post && function_exists( 'pll_current_language' ) && pll_current_language() === 'id' ) {
+                $cpt_post = get_page_by_path( $slug_check . '-id', OBJECT, 'fitra_news' );
+            }
+            if ( $cpt_post && $wp_query ) {
+                $wp_query->is_single          = true;
+                $wp_query->is_singular        = true;
+                $wp_query->is_page            = false;
+                $wp_query->queried_object     = $cpt_post;
+                $wp_query->queried_object_id  = $cpt_post->ID;
+                $wp_query->post               = $cpt_post;
+                $GLOBALS['post']              = $cpt_post;
+            }
             $detail_template = locate_template( array( 'page-news-detail.php' ) );
             if ( $detail_template ) {
                 return $detail_template;
@@ -640,4 +687,101 @@ function fitra_filter_body_classes( $classes ) {
     return array_values( array_unique( $classes ) );
 }
 add_filter( 'body_class', 'fitra_filter_body_classes', 99 );
+
+/* --------------------------------------------------
+   7. Force Classic Editor for CPTs & Admin Cleanup
+   -------------------------------------------------- */
+
+/**
+ * Disable Gutenberg (Block Editor) for our custom post types.
+ * Products and Events & News use Classic Editor + ACF fields.
+ */
+function fitra_disable_gutenberg_for_cpts( $use_block_editor, $post_type ) {
+    $classic_only = array( 'fitra_product', 'fitra_news' );
+    if ( in_array( $post_type, $classic_only, true ) ) {
+        return false;
+    }
+    return $use_block_editor;
+}
+add_filter( 'use_block_editor_for_post_type', 'fitra_disable_gutenberg_for_cpts', 10, 2 );
+
+/**
+ * Customize WP Admin menu:
+ * - Hide default Posts menu (we use CPTs instead)
+ * - Reorder menu items for cleaner admin experience
+ */
+function fitra_customize_admin_menu() {
+    // Hide default "Posts" menu item since we use custom CPTs
+    remove_menu_page( 'edit.php' );
+
+    // Hide default "Comments" menu
+    remove_menu_page( 'edit-comments.php' );
+}
+add_action( 'admin_menu', 'fitra_customize_admin_menu', 999 );
+
+/**
+ * Add admin notice if ACF plugin is not active.
+ */
+function fitra_check_acf_dependency() {
+    if ( ! class_exists( 'ACF' ) ) {
+        echo '<div class="notice notice-error"><p>';
+        echo '<strong>Fitra Perkasa Theme:</strong> ';
+        echo __( 'The <strong>Advanced Custom Fields (ACF)</strong> plugin is required for managing Products and Events & News content. Please install and activate it from Plugins → Add New.', 'fitra-perkasa' );
+        echo '</p></div>';
+    }
+}
+add_action( 'admin_notices', 'fitra_check_acf_dependency' );
+
+/**
+ * Add admin notice if Classic Editor plugin is not active.
+ */
+function fitra_check_classic_editor_dependency() {
+    if ( ! function_exists( 'classic_editor_init_actions' ) && ! class_exists( 'Classic_Editor' ) ) {
+        // Only show if user is editing a CPT that needs Classic Editor
+        $screen = get_current_screen();
+        if ( $screen && in_array( $screen->post_type, array( 'fitra_product', 'fitra_news' ), true ) ) {
+            echo '<div class="notice notice-warning"><p>';
+            echo '<strong>Fitra Perkasa Theme:</strong> ';
+            echo __( 'The <strong>Classic Editor</strong> plugin is recommended for the best editing experience. Install it from Plugins → Add New.', 'fitra-perkasa' );
+            echo '</p></div>';
+        }
+    }
+}
+add_action( 'admin_notices', 'fitra_check_classic_editor_dependency' );
+
+/**
+ * Add custom admin styles for CPT editor screens.
+ */
+function fitra_admin_cpt_styles() {
+    $screen = get_current_screen();
+    if ( ! $screen ) return;
+
+    $cpt_screens = array( 'fitra_product', 'fitra_news' );
+    if ( in_array( $screen->post_type, $cpt_screens, true ) ) {
+        echo '<style>
+            /* Fitra Perkasa Admin CPT Styles */
+            .acf-field .acf-label label {
+                font-weight: 600;
+                color: #1e293b;
+            }
+            .acf-tab-group li a {
+                font-weight: 500;
+            }
+            .acf-tab-group li.active a {
+                color: #e8611a;
+                border-bottom-color: #e8611a;
+            }
+            #fitra_polylang_auto_translate .inside {
+                padding: 8px 12px;
+            }
+            .column-product_stock span {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 3px;
+                font-size: 11px;
+            }
+        </style>';
+    }
+}
+add_action( 'admin_head', 'fitra_admin_cpt_styles' );
 

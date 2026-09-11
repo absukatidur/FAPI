@@ -25,10 +25,18 @@ function fitra_ensure_polylang_settings() {
 
     $needs_update = false;
 
-    // Ensure Polylang manages 'post' (Berita & Acara) only, NOT 'page'
+    // Ensure Polylang manages CPTs and 'post', but NOT 'page'
     // This prevents Polylang from intercepting theme page templates
-    if ( empty( $options['post_types'] ) || $options['post_types'] !== array( 'post' ) ) {
-        $options['post_types'] = array( 'post' );
+    $required_post_types = array( 'post', 'fitra_product', 'fitra_news' );
+    if ( empty( $options['post_types'] ) || $options['post_types'] !== $required_post_types ) {
+        $options['post_types'] = $required_post_types;
+        $needs_update = true;
+    }
+
+    // Register fitra_news_type taxonomy with Polylang
+    $required_taxonomies = array( 'fitra_news_type' );
+    if ( empty( $options['taxonomies'] ) || $options['taxonomies'] !== $required_taxonomies ) {
+        $options['taxonomies'] = $required_taxonomies;
         $needs_update = true;
     }
 
@@ -153,16 +161,20 @@ function fitra_translate_text_api( $text, $target_lang = 'en', $source_lang = 'i
 
 /**
  * Add Polylang Auto-Translator Metabox in WP-Admin Post Editor.
+ * Works for 'post', 'fitra_product', and 'fitra_news' post types.
  */
 function fitra_add_polylang_auto_translate_metabox() {
-    add_meta_box(
-        'fitra_polylang_auto_translate',
-        __( '⚡ Auto-Translate with Polylang', 'fitra-perkasa' ),
-        'fitra_render_polylang_metabox',
-        'post',
-        'side',
-        'high'
-    );
+    $screens = array( 'post', 'fitra_product', 'fitra_news' );
+    foreach ( $screens as $screen ) {
+        add_meta_box(
+            'fitra_polylang_auto_translate',
+            __( '⚡ Auto-Translate with Polylang', 'fitra-perkasa' ),
+            'fitra_render_polylang_metabox',
+            $screen,
+            'side',
+            'high'
+        );
+    }
 }
 add_action( 'add_meta_boxes', 'fitra_add_polylang_auto_translate_metabox' );
 

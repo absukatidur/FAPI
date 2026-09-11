@@ -136,8 +136,9 @@ $current_product_url = fitra_url( '/products/' . $current_product_slug . '/' );
         <div class="pd-hero__docs">
           <?php foreach ( $product['documents'] as $doc ) : 
               $doc_name = ( fitra_get_lang() === 'id' && ! empty( $doc['name_id'] ) ) ? $doc['name_id'] : $doc['name'];
+              $doc_url  = ! empty( $doc['url'] ) ? $doc['url'] : '#';
           ?>
-          <a href="#" class="pd-doc">
+          <a href="<?php echo esc_url( $doc_url ); ?>" class="pd-doc"<?php echo ( $doc_url !== '#' ) ? ' target="_blank" rel="noopener noreferrer" download' : ''; ?>>
             <div class="pd-doc__icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
