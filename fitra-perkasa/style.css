@@ -3543,12 +3543,27 @@ body.menu-open .header__hamburger span,
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: 24px;
+  overflow: hidden; /* clip any horizontal bleed */
 }
 
 .products-filter-bar__list {
   display: flex;
   gap: 0;
   align-items: center;
+  /* Scrollable at all sizes so extra tabs never overflow the page */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE 11 */
+}
+
+.products-filter-bar__list::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari */
+}
+
+.products-filter-btn {
+  scroll-snap-align: start;    /* each tab snaps into view when scrolling */
 }
 
 .products-filter-btn {
@@ -3941,15 +3956,7 @@ body.menu-open .header__hamburger span,
     font-size: 2.1rem;
   }
 
-  .products-filter-bar__list {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .products-filter-bar__list::-webkit-scrollbar {
-    display: none;
-  }
+  /* Scrollbar already hidden globally; keep mobile padding tweak only */
 
   .products-filter-btn {
     padding: 16px 16px;

@@ -10,7 +10,9 @@
 <head>
   <meta charset="<?php bloginfo( 'charset' ); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <?php if ( ! defined( 'WPSEO_VERSION' ) ) : ?>
   <meta name="description" content="<?php echo esc_attr( fitra_t_val( 'PT Fitra Perkasa Inti — Premier contractor and supplier providing robust industrial solutions and structural integrity for large-scale B2B commercial and government projects.', 'PT Fitra Perkasa Inti — Kontraktor dan pemasok terkemuka yang menyediakan solusi industri tangguh dan integritas struktural untuk proyek komersial B2B dan pemerintah skala besar.' ) ); ?>">
+  <?php endif; ?>
   <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>

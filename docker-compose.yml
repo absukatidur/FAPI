@@ -27,6 +27,7 @@ services:
     volumes:
       - wp_data:/var/www/html
       - ./fitra-perkasa:/var/www/html/wp-content/themes/fitra-perkasa
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
 
 volumes:
   db_data:

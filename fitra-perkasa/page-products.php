@@ -30,24 +30,25 @@ get_header();
         <button type="button" class="products-filter-btn products-filter-btn--active" role="tab" aria-selected="true" data-filter="all" id="tab-prod-all">
           <?php echo fitra_t_val( 'ALL PRODUCTS', 'SEMUA PRODUK' ); ?>
         </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="pipes" id="tab-prod-pipes">
-          <?php echo fitra_t_val( 'PIPES &amp; FITTINGS', 'PIPA &amp; SAMBUNGAN' ); ?>
+        <?php
+        $prod_cat_terms = get_terms( array(
+            'taxonomy'   => 'fitra_product_cat',
+            'hide_empty' => false,
+            'orderby'    => 'term_order',
+            'order'      => 'ASC',
+        ) );
+        if ( ! empty( $prod_cat_terms ) && ! is_wp_error( $prod_cat_terms ) ) :
+            foreach ( $prod_cat_terms as $prod_cat_term ) :
+        ?>
+        <button type="button" class="products-filter-btn" role="tab" aria-selected="false"
+                data-filter="<?php echo esc_attr( $prod_cat_term->slug ); ?>"
+                id="tab-prod-<?php echo esc_attr( $prod_cat_term->slug ); ?>">
+          <?php echo esc_html( strtoupper( fitra_get_product_cat_name( $prod_cat_term ) ) ); ?>
         </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="steels" id="tab-prod-steels">
-          <?php echo fitra_t_val( 'STEEL &amp; PLATES', 'BAJA &amp; PELAT' ); ?>
-        </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="gaskets" id="tab-prod-gaskets">
-          <?php echo fitra_t_val( 'GASKET &amp; SEALS', 'GASKET &amp; SEAL' ); ?>
-        </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="drives" id="tab-prod-drives">
-          <?php echo fitra_t_val( 'MECHANICAL DRIVES', 'PENGGERAK MEKANIKAL' ); ?>
-        </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="valves" id="tab-prod-valves">
-          <?php echo fitra_t_val( 'VALVES &amp; GAUGES', 'KATUP &amp; INSTRUMEN' ); ?>
-        </button>
-        <button type="button" class="products-filter-btn" role="tab" aria-selected="false" data-filter="energy" id="tab-prod-energy">
-          <?php echo fitra_t_val( 'ENERGY &amp; FUEL', 'ENERGI &amp; BAHAN BAKAR' ); ?>
-        </button>
+        <?php
+            endforeach;
+        endif;
+        ?>
       </div>
     </div>
   </nav>
@@ -58,146 +59,102 @@ get_header();
 
       <div class="products-grid-v2" id="products-grid">
         <?php
-        $catalog_config = array(
-            'tube-pipe-fitting-valve' => array(
-                'cat_key' => 'pipes',
-                'card_id' => 'prod-card-pipes',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PIPES ]</span> PIPE &amp; FITTING', '<span class="tag-bold">[ PIPA ]</span> PIPA &amp; SAMBUNGAN' ),
-                'specs'   => array( 'ASTM A106 / A53', 'SCH 40 / 80 / 160' ),
-            ),
-            'flanges-forged-fittings' => array(
-                'cat_key' => 'pipes',
-                'card_id' => 'prod-card-flanges',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PIPES ]</span> FLANGES &amp; FORGED', '<span class="tag-bold">[ PIPA ]</span> FLENS &amp; TEMPA' ),
-                'specs'   => array( 'ASME B16.5', 'Class 150# - 2500#' ),
-            ),
-            'seamless-heat-exchanger-tubing' => array(
-                'cat_key' => 'pipes',
-                'card_id' => 'prod-card-tubing',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PIPES ]</span> SEAMLESS TUBING', '<span class="tag-bold">[ PIPA ]</span> TUBING SEAMLESS' ),
-                'specs'   => array( 'ASTM A179 / A213', 'OD 1/4" - 2"' ),
-            ),
-            'steels' => array(
-                'cat_key' => 'steels',
-                'card_id' => 'prod-card-steels',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ STEEL ]</span> PLATE &amp; PROFILE', '<span class="tag-bold">[ BAJA ]</span> PELAT &amp; PROFIL' ),
-                'specs'   => array( 'ASTM A36 / SS400', 'SNI Certified' ),
-            ),
-            'wear-resistant-boiler-plate' => array(
-                'cat_key' => 'steels',
-                'card_id' => 'prod-card-boiler',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ STEEL ]</span> HARDNESS &amp; BOILER', '<span class="tag-bold">[ BAJA ]</span> TAHAN GESEK &amp; BOILER' ),
-                'specs'   => array( 'ASTM A516 Gr. 70', 'Hardox Equivalent' ),
-            ),
-            'heavy-structural-beams-channels' => array(
-                'cat_key' => 'steels',
-                'card_id' => 'prod-card-beams',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ STEEL ]</span> BEAMS &amp; CHANNELS', '<span class="tag-bold">[ BAJA ]</span> BALOK &amp; KANAL' ),
-                'specs'   => array( 'JIS G3101 SS400', 'Mill Certificate ISO' ),
-            ),
-            'gasket-packing' => array(
-                'cat_key' => 'gaskets',
-                'card_id' => 'prod-card-gasket',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PARTS ]</span> GASKET &amp; PACKING', '<span class="tag-bold">[ SUKU CADANG ]</span> GASKET &amp; PACKING' ),
-                'specs'   => array( 'ASME B16.20', 'PTFE / Graphite Fill' ),
-            ),
-            'bearing-sealing' => array(
-                'cat_key' => 'gaskets',
-                'card_id' => 'prod-card-bearing',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PARTS ]</span> BEARING &amp; ROTARY', '<span class="tag-bold">[ SUKU CADANG ]</span> BANTALAN &amp; ROTARY' ),
-                'specs'   => array( 'ISO 9001 Tested', 'Heavy Duty Roller' ),
-            ),
-            'high-temp-mechanical-cartridge-seals' => array(
-                'cat_key' => 'gaskets',
-                'card_id' => 'prod-card-seals',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ PARTS ]</span> SEALING SOLUTIONS', '<span class="tag-bold">[ SUKU CADANG ]</span> SEALING SOLUSI' ),
-                'specs'   => array( 'API 682 Standard', 'Silicon Carbide Face' ),
-            ),
-            'gear-box-sumitomo' => array(
-                'cat_key' => 'drives',
-                'card_id' => 'prod-card-gearbox',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ DRIVES ]</span> HEAVY GEARBOX', '<span class="tag-bold">[ PENGGERAK ]</span> GEARBOX BERAT' ),
-                'specs'   => array( 'Sumitomo Paramax', 'High Torque Ratio' ),
-            ),
-            'electric-motors-speed-reducers' => array(
-                'cat_key' => 'drives',
-                'card_id' => 'prod-card-motors',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ DRIVES ]</span> MOTOR &amp; REDUCER', '<span class="tag-bold">[ PENGGERAK ]</span> MOTOR &amp; REDUSER' ),
-                'specs'   => array( 'IE3 High Efficiency', 'IP55 / IP66 Rated' ),
-            ),
-            'industrial-flexible-couplings' => array(
-                'cat_key' => 'drives',
-                'card_id' => 'prod-card-couplings',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ DRIVES ]</span> COUPLING &amp; SHAFT', '<span class="tag-bold">[ PENGGERAK ]</span> KOPLING &amp; POROS' ),
-                'specs'   => array( 'API 671 / ISO 10441', 'Torsionally Resilient' ),
-            ),
-            'industrial-control-isolation-valves' => array(
-                'cat_key' => 'valves',
-                'card_id' => 'prod-card-valves',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ VALVES ]</span> CONTROL &amp; BALL', '<span class="tag-bold">[ KATUP ]</span> KONTROL &amp; BOLA' ),
-                'specs'   => array( 'API 6D / API 600', 'Pneumatic Actuated' ),
-            ),
-            'instrumentation-gauges-manifolds' => array(
-                'cat_key' => 'valves',
-                'card_id' => 'prod-card-gauges',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ VALVES ]</span> PRESSURE &amp; SENSOR', '<span class="tag-bold">[ INSTRUMEN ]</span> TEKANAN &amp; SENSOR' ),
-                'specs'   => array( 'Accuracy 0.5% - 1.0%', 'SS316 Wetted Parts' ),
-            ),
-            'pressure-safety-relief-valves' => array(
-                'cat_key' => 'valves',
-                'card_id' => 'prod-card-safetyvalves',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ VALVES ]</span> SAFETY &amp; CHECK', '<span class="tag-bold">[ KATUP ]</span> PENGAMAN &amp; CHECK' ),
-                'specs'   => array( 'ASME Sec VIII / API 526', 'Set Pressure Certified' ),
-            ),
-            'fuel-migas-standard' => array(
-                'cat_key' => 'energy',
-                'card_id' => 'prod-card-fuel',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ ENERGY ]</span> FUEL &amp; LUBRICANT', '<span class="tag-bold">[ ENERGI ]</span> BAHAN BAKAR &amp; PELUMAS' ),
-                'specs'   => array( 'Biodiesel B35/B40', 'Bulk &amp; Drum Supply' ),
-            ),
-            'refinery-spares-consumables' => array(
-                'cat_key' => 'energy',
-                'card_id' => 'prod-card-spares',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ ENERGY ]</span> REFINERY SPARES', '<span class="tag-bold">[ ENERGI ]</span> SUKU CADANG KILANG' ),
-                'specs'   => array( 'OEM Certified', 'Fast Lead Time' ),
-            ),
-            'heavy-fuel-filtration-turbine-spares' => array(
-                'cat_key' => 'energy',
-                'card_id' => 'prod-card-powerfilters',
-                'tag'     => fitra_t_val( '<span class="tag-bold">[ ENERGY ]</span> POWER &amp; FILTERS', '<span class="tag-bold">[ ENERGI ]</span> PEMBANGKIT &amp; FILTER' ),
-                'specs'   => array( 'ISO 4406 Cleanliness', 'Micro-Glass Media' ),
-            ),
+        /*
+         * Dynamic product grid — queries all published fitra_product CPT posts.
+         * Each card's data-category attribute is the first taxonomy term slug
+         * assigned to the product, which matches the filter button data-filter value.
+         * Falls back to fitra_get_product_category_key() for legacy products that
+         * still rely on the ACF product_category meta instead of taxonomy terms.
+         */
+        $img_base = get_template_directory_uri() . '/assets/images/';
+
+        $prod_query_args = array(
+            'post_type'      => 'fitra_product',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => 'menu_order date',
+            'order'          => 'ASC',
         );
 
-        $all_products = fitra_get_products();
-        foreach ( $catalog_config as $slug => $cfg ) :
-            $p = $all_products[ $slug ] ?? null;
-            if ( ! $p ) continue;
-            $prod_url = fitra_url( '/products/' . $slug . '/' );
-            $aria_lbl = fitra_t_val( 'View details for ' . $p['title'], 'Lihat detail ' . $p['title'] );
-            $btn_lbl  = fitra_t_val( 'VIEW DETAIL &rarr;', 'LIHAT DETAIL &rarr;' );
-            $rfq_lbl  = fitra_t_val( 'Request Quotation (RFQ)', 'Minta Penawaran (RFQ)' );
+        // Polylang: limit to current language
+        if ( function_exists( 'pll_current_language' ) ) {
+            $prod_query_args['lang'] = fitra_get_lang();
+        }
+
+        $prod_query = new WP_Query( $prod_query_args );
+
+        if ( $prod_query->have_posts() ) :
+            while ( $prod_query->have_posts() ) : $prod_query->the_post();
+                $post_id   = get_the_ID();
+                $post_slug = get_post_meta( $post_id, 'product_slug', true ) ?: get_post_field( 'post_name', $post_id );
+                $post_slug = preg_replace( '/-id$/', '', $post_slug );
+
+                // ── Category (taxonomy → legacy meta fallback) ──────────────────
+                $prod_terms    = get_the_terms( $post_id, 'fitra_product_cat' );
+                $cat_slug      = '';
+                $cat_label     = '';
+
+                if ( ! empty( $prod_terms ) && ! is_wp_error( $prod_terms ) ) {
+                    $first_term = reset( $prod_terms );
+                    $cat_slug   = $first_term->slug;
+                    // Use bilingual helper: shows ID name when lang=id
+                    $cat_label  = function_exists( 'fitra_get_product_cat_name' )
+                        ? fitra_get_product_cat_name( $first_term )
+                        : html_entity_decode( $first_term->name, ENT_QUOTES, 'UTF-8' );
+                } else {
+                    // Legacy ACF meta
+                    $meta_cat  = get_post_meta( $post_id, 'product_category', true );
+                    $cat_label = get_post_meta( $post_id, 'product_category_label', true ) ?: $meta_cat;
+                    $cat_slug  = function_exists( 'fitra_get_product_category_key' )
+                        ? fitra_get_product_category_key( $meta_cat )
+                        : 'all';
+                }
+
+                // ── Card fields ─────────────────────────────────────────────────
+                $p_title   = get_the_title();
+                $p_desc    = get_post_meta( $post_id, 'product_description', true );
+                $p_tag     = get_post_meta( $post_id, 'product_card_tag', true );
+                $p_specs_r = get_post_meta( $post_id, 'product_card_specs', true );
+                $p_specs   = ! empty( $p_specs_r )
+                    ? array_filter( array_map( 'trim', explode( "\n", $p_specs_r ) ) )
+                    : array();
+
+                // Image: ACF field > featured image > fallback
+                $p_image = get_post_meta( $post_id, 'product_image', true );
+                if ( empty( $p_image ) && has_post_thumbnail() ) {
+                    $p_image = get_the_post_thumbnail_url( $post_id, 'full' );
+                }
+                if ( empty( $p_image ) ) {
+                    $p_image = $img_base . 'product-pipes.jpg';
+                }
+
+                $prod_url = fitra_url( '/products/' . $post_slug . '/' );
+                $aria_lbl = fitra_t_val( 'View details for ' . $p_title, 'Lihat detail ' . $p_title );
+                $btn_lbl  = fitra_t_val( 'VIEW DETAIL &rarr;', 'LIHAT DETAIL &rarr;' );
+                $rfq_lbl  = fitra_t_val( 'Request Quotation (RFQ)', 'Minta Penawaran (RFQ)' );
         ?>
-        <article class="products-card-v2" data-category="<?php echo esc_attr( $cfg['cat_key'] ); ?>" id="<?php echo esc_attr( $cfg['card_id'] ); ?>" data-url="<?php echo esc_url( $prod_url ); ?>">
+        <article class="products-card-v2" data-category="<?php echo esc_attr( $cat_slug ); ?>" id="prod-card-<?php echo esc_attr( $post_slug ); ?>" data-url="<?php echo esc_url( $prod_url ); ?>">
           <a href="<?php echo esc_url( $prod_url ); ?>" class="products-card-v2__image-link" aria-label="<?php echo esc_attr( $aria_lbl ); ?>">
             <div class="products-card-v2__image-wrap">
-              <img src="<?php echo esc_url( $p['image'] ); ?>" alt="<?php echo esc_attr( $p['title'] ); ?>" loading="lazy">
-              <span class="products-card-v2__tag">
-                <?php echo $cfg['tag']; ?>
-              </span>
+              <img src="<?php echo esc_url( $p_image ); ?>" alt="<?php echo esc_attr( $p_title ); ?>" loading="lazy">
+              <?php if ( ! empty( $p_tag ) ) : ?>
+              <span class="products-card-v2__tag"><?php echo wp_kses_post( $p_tag ); ?></span>
+              <?php endif; ?>
             </div>
           </a>
           <div class="products-card-v2__body">
-            <span class="products-card-v2__category"><?php echo esc_html( strtoupper( $p['category'] ) ); ?></span>
+            <span class="products-card-v2__category"><?php echo esc_html( strtoupper( $cat_label ) ); ?></span>
             <h3 class="products-card-v2__title">
-              <a href="<?php echo esc_url( $prod_url ); ?>"><?php echo esc_html( $p['title'] ); ?></a>
+              <a href="<?php echo esc_url( $prod_url ); ?>"><?php echo esc_html( $p_title ); ?></a>
             </h3>
-            <p class="products-card-v2__desc"><?php echo esc_html( $p['desc'] ); ?></p>
+            <p class="products-card-v2__desc"><?php echo esc_html( $p_desc ); ?></p>
+            <?php if ( ! empty( $p_specs ) ) : ?>
             <div class="products-card-v2__specs">
-              <?php foreach ( $cfg['specs'] as $spec_pill ) : ?>
+              <?php foreach ( $p_specs as $spec_pill ) : ?>
                 <span class="spec-pill"><?php echo esc_html( $spec_pill ); ?></span>
               <?php endforeach; ?>
             </div>
+            <?php endif; ?>
             <div class="products-card-v2__footer">
               <a href="<?php echo esc_url( $prod_url ); ?>" class="products-card-v2__btn">
                 <?php echo $btn_lbl; ?>
@@ -208,7 +165,15 @@ get_header();
             </div>
           </div>
         </article>
-        <?php endforeach; ?>
+        <?php
+            endwhile;
+            wp_reset_postdata();
+        else :
+        ?>
+        <!-- No CPT products yet — grid will populate as products are added -->
+        <?php
+        endif;
+        ?>
       </div>
 
       <!-- No Products Found State -->
