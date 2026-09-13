@@ -368,25 +368,6 @@ if ( ! empty( $db_articles ) ) {
     </div>
   </section>
 
-  <!-- ===== NEWSLETTER SUBSCRIPTION BANNER ===== -->
-  <section class="news-newsletter-section">
-    <div class="news-container">
-      <div class="news-newsletter">
-        <div class="news-newsletter__content">
-          <h2 class="news-newsletter__title"><?php echo esc_html( fitra_t_val( 'Get Industry Insights Directly to Your Inbox', 'Dapatkan Insight Industri Langsung ke Inbox Anda' ) ); ?></h2>
-          <p class="news-newsletter__desc">
-            <?php echo esc_html( fitra_t_val( 'Subscribe to our newsletter for weekly market updates, technical reports, and upcoming event notifications.', 'Berlangganan buletin kami untuk mendapatkan pembaruan pasar mingguan, laporan teknis, dan informasi acara mendatang.' ) ); ?>
-          </p>
-        </div>
-        
-        <form class="news-newsletter__form" id="news-newsletter-form" onsubmit="return false;">
-          <input type="email" class="news-newsletter__input" placeholder="<?php echo esc_attr( fitra_t_val( 'Your email address', 'Alamat email Anda' ) ); ?>" required aria-label="<?php echo esc_attr( fitra_t_val( 'Your email address', 'Alamat email Anda' ) ); ?>">
-          <button type="submit" class="news-newsletter__btn"><?php echo esc_html( fitra_t_val( 'Subscribe', 'Berlangganan' ) ); ?></button>
-        </form>
-      </div>
-    </div>
-  </section>
-
 </main>
 
 <?php
