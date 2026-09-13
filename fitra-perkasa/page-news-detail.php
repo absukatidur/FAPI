@@ -51,9 +51,15 @@ $img = get_template_directory_uri() . '/assets/images/';
     <!-- Article Header -->
     <header class="nd-header">
       <div class="nd-header__meta">
-        <span class="nd-header__category"><?php echo esc_html( $article['category'] ); ?></span>
-        <span class="nd-header__sep">&bull;</span>
-        <time class="nd-header__date"><?php echo esc_html( $article['date'] ); ?></time>
+        <?php if ( ! empty( $article['category'] ) ) : ?>
+          <span class="nd-header__category"><?php echo esc_html( $article['category'] ); ?></span>
+        <?php endif; ?>
+        <?php if ( ! empty( $article['category'] ) && ! empty( $article['date'] ) ) : ?>
+          <span class="nd-header__sep">&bull;</span>
+        <?php endif; ?>
+        <?php if ( ! empty( $article['date'] ) ) : ?>
+          <time class="nd-header__date"><?php echo esc_html( $article['date'] ); ?></time>
+        <?php endif; ?>
       </div>
 
       <h1 class="nd-header__title"><?php echo esc_html( $article['title'] ); ?></h1>
@@ -64,7 +70,9 @@ $img = get_template_directory_uri() . '/assets/images/';
         </div>
         <div class="nd-author__info">
           <span class="nd-author__name"><?php echo esc_html( $article['author']['name'] ); ?></span>
-          <span class="nd-author__role"><?php echo esc_html( $article['author']['role'] ); ?></span>
+          <?php if ( ! empty( $article['author']['role'] ) ) : ?>
+            <span class="nd-author__role"><?php echo esc_html( $article['author']['role'] ); ?></span>
+          <?php endif; ?>
         </div>
       </div>
     </header>
@@ -77,65 +85,35 @@ $img = get_template_directory_uri() . '/assets/images/';
     <!-- Main Content & Sidebar Layout -->
     <div class="nd-layout">
 
-      <!-- Left Column: Article Body -->
       <article class="nd-content">
 
-        <!-- Pullquote Callout -->
+        <?php
+        // ── Pull Quote (optional) ─────────────────────────────────────
+        $pullquote = $article['pullquote'] ?? '';
+        if ( ! empty( $pullquote ) ) :
+        ?>
         <blockquote class="nd-pullquote">
-          <p><?php echo esc_html( $article['pullquote'] ); ?></p>
+          <p><?php echo esc_html( $pullquote ); ?></p>
         </blockquote>
+        <?php endif; ?>
 
-        <!-- Section 1 -->
-        <h2 class="nd-heading-2"><?php echo esc_html( $article['section1_title'] ); ?></h2>
-        <p class="nd-p"><?php echo esc_html( $article['section1_p1'] ); ?></p>
-        <p class="nd-p"><?php echo esc_html( $article['section1_p2'] ); ?></p>
 
-        <!-- Feature Points -->
-        <h3 class="nd-heading-3"><?php echo esc_html( $article['features_title'] ); ?></h3>
-        <div class="nd-features">
-          <?php foreach ( $article['features'] as $feature ) : ?>
-          <div class="nd-feature-item">
-            <div class="nd-feature-item__icon">
-              <?php if ( $feature['icon'] === 'check' ) : ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-              <?php elseif ( $feature['icon'] === 'robot' ) : ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                <circle cx="12" cy="5" r="2"></circle>
-                <path d="M12 7v4"></path>
-                <line x1="8" y1="16" x2="8" y2="16"></line>
-                <line x1="16" y1="16" x2="16" y2="16"></line>
-              </svg>
-              <?php else : ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-              </svg>
-              <?php endif; ?>
-            </div>
-            <div class="nd-feature-item__text">
-              <h4 class="nd-feature-item__title"><?php echo esc_html( $feature['title'] ); ?></h4>
-              <p class="nd-feature-item__desc"><?php echo esc_html( $feature['desc'] ); ?></p>
-            </div>
-          </div>
-          <?php endforeach; ?>
+        <?php
+        // ── Article Body (WYSIWYG) ────────────────────────────────────
+        // Try CPT post meta first (new field), fall back to article array key.
+        $article_body = '';
+        if ( ! empty( $article['post_id'] ) ) {
+            $article_body = get_post_meta( $article['post_id'], 'news_article_body', true );
+        }
+        if ( empty( $article_body ) ) {
+            $article_body = $article['article_body'] ?? '';
+        }
+        if ( ! empty( $article_body ) ) :
+        ?>
+        <div class="nd-article-body">
+          <?php echo wp_kses_post( $article_body ); ?>
         </div>
-
-        <!-- Section 2 -->
-        <h2 class="nd-heading-2"><?php echo esc_html( $article['section2_title'] ); ?></h2>
-        <p class="nd-p"><?php echo esc_html( $article['section2_p1'] ); ?></p>
-
-        <!-- Executive Quote Box -->
-        <div class="nd-quote-card">
-          <p class="nd-quote-card__text">&ldquo;<?php echo esc_html( $article['quote'] ); ?>&rdquo;</p>
-          <cite class="nd-quote-card__author">&mdash; <?php echo esc_html( $article['quote_author'] ); ?></cite>
-        </div>
-
-        <p class="nd-p"><?php echo esc_html( $article['section2_p2'] ); ?></p>
+        <?php endif; ?>
 
         <!-- Social Share Bar -->
         <div class="nd-share">

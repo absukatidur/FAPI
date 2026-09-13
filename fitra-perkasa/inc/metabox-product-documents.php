@@ -3,9 +3,14 @@
  * Product Documents — Repeatable File Upload UI inside Dedicated Documents Tab
  *
  * Hooks into the ACF field rendering to inject a user-friendly repeatable
- * document upload section inside its own dedicated "Documents" tab.
+ * document upload section inside the product Specifications tab.
  *
- * File type and size are auto-detected from the uploaded Media Library file.
+ * Enforces a strict 10 MB maximum file size limit on:
+ * 1. Client-side media picker selection
+ * 2. Media uploader drop/upload queue
+ * 3. WordPress upload pre-filter hook (server-side)
+ * 4. Post-save database validation (server-side)
+ *
  * Data is stored in `product_documents_rows` post meta as a serialized array.
  *
  * @package FitraPerkasa
@@ -14,6 +19,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// 10 MB in bytes: 10 * 1024 * 1024 = 10,485,760
+define( 'FITRA_PRODUCT_DOC_MAX_BYTES', 10485760 );
 
 /**
  * Enqueue WordPress Media uploader on product edit screens.
@@ -30,7 +38,46 @@ function fitra_enqueue_media_for_products( $hook ) {
 add_action( 'admin_enqueue_scripts', 'fitra_enqueue_media_for_products' );
 
 /**
- * Render the Documents UI inside the dedicated Documents ACF tab.
+ * Set WordPress upload size limit to 10 MB for media upload UI.
+ */
+function fitra_set_max_upload_size( $size ) {
+    return FITRA_PRODUCT_DOC_MAX_BYTES; // 10 MB = 10,485,760 bytes
+}
+add_filter( 'upload_size_limit', 'fitra_set_max_upload_size' );
+
+/**
+ * Enforce maximum 10 MB upload size limit for product files via WP upload prefilter.
+ */
+function fitra_limit_product_file_upload_size( $file ) {
+    $is_product_context = false;
+
+    // Check referer URL
+    $referer = wp_get_referer();
+    if ( $referer && ( strpos( $referer, 'fitra_product' ) !== false || strpos( $referer, 'post_type=fitra_product' ) !== false ) ) {
+        $is_product_context = true;
+    }
+
+    // Check post_id parameter in media upload request
+    if ( ! empty( $_REQUEST['post_id'] ) && get_post_type( (int) $_REQUEST['post_id'] ) === 'fitra_product' ) {
+        $is_product_context = true;
+    }
+
+    if ( $is_product_context ) {
+        if ( isset( $file['size'] ) && $file['size'] > FITRA_PRODUCT_DOC_MAX_BYTES ) {
+            $file_size_mb = round( $file['size'] / ( 1024 * 1024 ), 2 );
+            $file['error'] = sprintf(
+                __( 'Ukuran berkas (%1$s MB) melebihi batas maksimum 10 MB untuk produk. Silakan pilih atau kompres berkas agar tidak melebihi 10 MB. / File size (%1$s MB) exceeds the maximum 10 MB limit.', 'fitra-perkasa' ),
+                $file_size_mb
+            );
+        }
+    }
+
+    return $file;
+}
+add_filter( 'wp_handle_upload_prefilter', 'fitra_limit_product_file_upload_size' );
+
+/**
+ * Render the Documents UI inside the Specifications ACF tab.
  */
 function fitra_render_documents_after_specs( $field ) {
     global $post;
@@ -65,7 +112,12 @@ function fitra_render_documents_after_specs( $field ) {
         }
         .fitra-docs-section-title {
             font-size: 14px; font-weight: 700; color: #1e293b;
-            margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;
+            margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;
+        }
+        .fitra-docs-badge-limit {
+            background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;
+            font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
         .fitra-docs-section-desc {
             font-size: 12px; color: #64748b; margin: 0 0 12px 0;
@@ -144,11 +196,17 @@ function fitra_render_documents_after_specs( $field ) {
         .fitra-docs-file-status { font-size: 11px; margin-top: 2px; }
         .fitra-docs-file-status.has-file { color: #16a34a; font-weight: 500; }
         .fitra-docs-file-status.no-file { color: #94a3b8; }
+        .fitra-docs-file-status.error { color: #dc2626; font-weight: 600; }
     </style>
 
     <div class="fitra-docs-section">
-        <h3 class="fitra-docs-section-title">📁 <?php esc_html_e( 'Downloadable Documents & Files', 'fitra-perkasa' ); ?></h3>
-        <p class="fitra-docs-section-desc"><?php esc_html_e( 'Upload PDF technical data sheets, catalogs, certificates, and other downloadable files. File type and size are detected automatically.', 'fitra-perkasa' ); ?></p>
+        <h3 class="fitra-docs-section-title">
+            📁 <?php esc_html_e( 'Downloadable Documents & Files', 'fitra-perkasa' ); ?>
+            <span class="fitra-docs-badge-limit"><?php esc_html_e( 'Maks. 10 MB / File', 'fitra-perkasa' ); ?></span>
+        </h3>
+        <p class="fitra-docs-section-desc">
+            <?php esc_html_e( 'Upload PDF technical data sheets, catalogs, certificates, and other downloadable files. Ukuran berkas maksimum adalah 10 MB per file.', 'fitra-perkasa' ); ?>
+        </p>
 
         <div class="fitra-docs-list" id="fitra-docs-list">
             <?php if ( ! empty( $rows ) ) : ?>
@@ -172,11 +230,11 @@ function fitra_render_documents_after_specs( $field ) {
                                    oninput="fitraUpdateDocLabel(this)">
                         </div>
                         <div class="fitra-docs-field full-width">
-                            <label><?php esc_html_e( 'File (Upload or paste URL)', 'fitra-perkasa' ); ?></label>
+                            <label><?php esc_html_e( 'File (Upload or paste URL — Maksimal 10 MB)', 'fitra-perkasa' ); ?></label>
                             <div class="fitra-docs-url-wrap">
                                 <input type="text" name="fitra_docs[<?php echo $i; ?>][url]"
                                        value="<?php echo esc_attr( $row['url'] ?? '' ); ?>"
-                                       placeholder="<?php esc_attr_e( 'Click "Upload File" to select a file →', 'fitra-perkasa' ); ?>"
+                                       placeholder="<?php esc_attr_e( 'Click "Upload File" to select a file (Max 10 MB) →', 'fitra-perkasa' ); ?>"
                                        class="fitra-docs-url-input"
                                        oninput="fitraUpdateFileStatus(this)">
                                 <button type="button" class="fitra-docs-upload-btn" onclick="fitraUploadFile(this)">
@@ -187,7 +245,7 @@ function fitra_render_documents_after_specs( $field ) {
                                 <?php endif; ?>
                             </div>
                             <span class="fitra-docs-file-status <?php echo $has_url ? 'has-file' : 'no-file'; ?>">
-                                <?php echo $has_url ? '✓ ' . esc_html__( 'File attached', 'fitra-perkasa' ) : esc_html__( 'No file uploaded yet — click Upload File', 'fitra-perkasa' ); ?>
+                                <?php echo $has_url ? '✓ ' . esc_html__( 'File attached', 'fitra-perkasa' ) : esc_html__( 'No file uploaded yet — click Upload File (Max 10 MB)', 'fitra-perkasa' ); ?>
                             </span>
                         </div>
                         <div class="fitra-docs-field">
@@ -197,7 +255,7 @@ function fitra_render_documents_after_specs( $field ) {
                                    readonly>
                         </div>
                         <div class="fitra-docs-field">
-                            <label><?php esc_html_e( 'File Size (auto-detected)', 'fitra-perkasa' ); ?></label>
+                            <label><?php esc_html_e( 'File Size (auto-detected, maks. 10 MB)', 'fitra-perkasa' ); ?></label>
                             <input type="text" name="fitra_docs[<?php echo $i; ?>][size]"
                                    value="<?php echo esc_attr( $row['size'] ?? '' ); ?>"
                                    readonly>
@@ -207,7 +265,7 @@ function fitra_render_documents_after_specs( $field ) {
                 <?php endforeach; ?>
             <?php else : ?>
                 <div class="fitra-docs-empty" id="fitra-docs-empty">
-                    <?php esc_html_e( 'No documents added yet. Click "Add Document" to upload PDF data sheets, certificates, or other files.', 'fitra-perkasa' ); ?>
+                    <?php esc_html_e( 'No documents added yet. Click "Add Document" to upload PDF data sheets, certificates, or other files (Max 10 MB).', 'fitra-perkasa' ); ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -219,6 +277,7 @@ function fitra_render_documents_after_specs( $field ) {
 
     <script>
     var fitraDocIndex = <?php echo max( count( $rows ), 0 ); ?>;
+    var FITRA_MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 
     function fitraAddDocRow() {
         var list = document.getElementById('fitra-docs-list');
@@ -241,19 +300,19 @@ function fitra_render_documents_after_specs( $field ) {
                     '<input type="text" name="fitra_docs[' + idx + '][name]" value="" placeholder="<?php echo esc_js( __( 'e.g. Technical Data Sheet', 'fitra-perkasa' ) ); ?>" oninput="fitraUpdateDocLabel(this)">' +
                 '</div>' +
                 '<div class="fitra-docs-field full-width">' +
-                    '<label><?php echo esc_js( __( 'File (Upload or paste URL)', 'fitra-perkasa' ) ); ?></label>' +
+                    '<label><?php echo esc_js( __( 'File (Upload or paste URL — Maksimal 10 MB)', 'fitra-perkasa' ) ); ?></label>' +
                     '<div class="fitra-docs-url-wrap">' +
-                        '<input type="text" name="fitra_docs[' + idx + '][url]" value="" placeholder="<?php echo esc_js( __( 'Click "Upload File" to select a file →', 'fitra-perkasa' ) ); ?>" class="fitra-docs-url-input" oninput="fitraUpdateFileStatus(this)">' +
+                        '<input type="text" name="fitra_docs[' + idx + '][url]" value="" placeholder="<?php echo esc_js( __( 'Click "Upload File" to select a file (Max 10 MB) →', 'fitra-perkasa' ) ); ?>" class="fitra-docs-url-input" oninput="fitraUpdateFileStatus(this)">' +
                         '<button type="button" class="fitra-docs-upload-btn" onclick="fitraUploadFile(this)">📎 <?php echo esc_js( __( 'Upload File', 'fitra-perkasa' ) ); ?></button>' +
                     '</div>' +
-                    '<span class="fitra-docs-file-status no-file"><?php echo esc_js( __( 'No file uploaded yet — click Upload File', 'fitra-perkasa' ) ); ?></span>' +
+                    '<span class="fitra-docs-file-status no-file"><?php echo esc_js( __( 'No file uploaded yet — click Upload File (Max 10 MB)', 'fitra-perkasa' ) ); ?></span>' +
                 '</div>' +
                 '<div class="fitra-docs-field">' +
                     '<label><?php echo esc_js( __( 'File Type (auto-detected)', 'fitra-perkasa' ) ); ?></label>' +
                     '<input type="text" name="fitra_docs[' + idx + '][type]" value="PDF" readonly>' +
                 '</div>' +
                 '<div class="fitra-docs-field">' +
-                    '<label><?php echo esc_js( __( 'File Size (auto-detected)', 'fitra-perkasa' ) ); ?></label>' +
+                    '<label><?php echo esc_js( __( 'File Size (auto-detected, maks. 10 MB)', 'fitra-perkasa' ) ); ?></label>' +
                     '<input type="text" name="fitra_docs[' + idx + '][size]" value="" readonly>' +
                 '</div>' +
             '</div>';
@@ -270,7 +329,7 @@ function fitra_render_documents_after_specs( $field ) {
             var emptyDiv = document.createElement('div');
             emptyDiv.className = 'fitra-docs-empty';
             emptyDiv.id = 'fitra-docs-empty';
-            emptyDiv.textContent = '<?php echo esc_js( __( 'No documents added yet. Click "Add Document" to upload PDF data sheets, certificates, or other files.', 'fitra-perkasa' ) ); ?>';
+            emptyDiv.textContent = '<?php echo esc_js( __( 'No documents added yet. Click "Add Document" to upload PDF data sheets, certificates, or other files (Max 10 MB).', 'fitra-perkasa' ) ); ?>';
             list.appendChild(emptyDiv);
         }
     }
@@ -303,7 +362,7 @@ function fitra_render_documents_after_specs( $field ) {
             wrap.appendChild(a);
         } else {
             status.className = 'fitra-docs-file-status no-file';
-            status.textContent = '<?php echo esc_js( __( 'No file uploaded yet — click Upload File', 'fitra-perkasa' ) ); ?>';
+            status.textContent = '<?php echo esc_js( __( 'No file uploaded yet — click Upload File (Max 10 MB)', 'fitra-perkasa' ) ); ?>';
         }
     }
 
@@ -313,25 +372,56 @@ function fitra_render_documents_after_specs( $field ) {
         var sizeInput = item.querySelector('input[name*="[size]"]');
         var typeInput = item.querySelector('input[name*="[type]"]');
         var nameInput = item.querySelector('input[name*="[name]"]');
+        var status = item.querySelector('.fitra-docs-file-status');
         var iconEl = item.querySelector('.fitra-docs-item-icon');
 
         var fileFrame = wp.media({
-            title: '<?php echo esc_js( __( 'Select or Upload Document', 'fitra-perkasa' ) ); ?>',
+            title: '<?php echo esc_js( __( 'Select or Upload Document (Maximum: 10 MB)', 'fitra-perkasa' ) ); ?>',
             button: { text: '<?php echo esc_js( __( 'Use This File', 'fitra-perkasa' ) ); ?>' },
             multiple: false,
             library: { type: '' }
         });
 
+        // Intercept upload queue if files are added directly in media frame
+        fileFrame.on('uploader:ready', function() {
+            if (fileFrame.uploader && fileFrame.uploader.uploader) {
+                fileFrame.uploader.uploader.bind('FilesAdded', function(up, files) {
+                    for (var i = files.length - 1; i >= 0; i--) {
+                        if (files[i].size > FITRA_MAX_FILE_BYTES) {
+                            var sizeMb = (files[i].size / (1024 * 1024)).toFixed(2);
+                            alert('Berkas "' + files[i].name + '" (' + sizeMb + ' MB) melebihi batas maksimum 10 MB!\n\nFile exceeds the 10 MB limit and was rejected.');
+                            up.removeFile(files[i]);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Intercept file selection from Media Library
         fileFrame.on('select', function() {
             var attachment = fileFrame.state().get('selection').first().toJSON();
+
+            // Check file size in bytes
+            var bytes = attachment.filesize || (attachment.fileLength ? parseInt(attachment.fileLength) : 0);
+            if (!bytes && attachment.filesizeInBytes) {
+                bytes = parseInt(attachment.filesizeInBytes);
+            }
+
+            if (bytes > FITRA_MAX_FILE_BYTES) {
+                var sizeFormatted = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                alert('Peringatan: Ukuran berkas melebihi batas maksimum 10 MB!\n\nUkuran berkas yang dipilih: ' + sizeFormatted + '\nBatas maksimum: 10 MB\n\nSilakan pilih atau unggah berkas dengan ukuran maksimal 10 MB.');
+                status.className = 'fitra-docs-file-status error';
+                status.textContent = '✕ ' + '<?php echo esc_js( __( 'Ditolak: Ukuran berkas melebihi batas maksimum 10 MB', 'fitra-perkasa' ) ); ?> (' + sizeFormatted + ')';
+                return;
+            }
 
             urlInput.value = attachment.url;
             fitraUpdateFileStatus(urlInput);
 
             if (attachment.filesizeHumanReadable) {
                 sizeInput.value = attachment.filesizeHumanReadable;
-            } else if (attachment.filesize) {
-                var mb = (attachment.filesize / (1024 * 1024)).toFixed(1);
+            } else if (bytes) {
+                var mb = (bytes / (1024 * 1024)).toFixed(1);
                 sizeInput.value = mb + ' MB';
             }
 
@@ -363,7 +453,7 @@ function fitra_render_documents_after_specs( $field ) {
 add_action( 'acf/render_field/key=field_product_specs', 'fitra_render_documents_after_specs', 20 );
 
 /**
- * Save Documents data on post save.
+ * Save Documents data on post save with server-side 10 MB size validation.
  */
 function fitra_save_documents_metabox( $post_id ) {
     if ( ! isset( $_POST['fitra_docs_nonce'] ) || ! wp_verify_nonce( $_POST['fitra_docs_nonce'], 'fitra_docs_save' ) ) {
@@ -386,7 +476,28 @@ function fitra_save_documents_metabox( $post_id ) {
             $url  = esc_url_raw( wp_unslash( $row['url'] ?? '' ) );
             $type = sanitize_text_field( wp_unslash( $row['type'] ?? 'PDF' ) );
             $size = sanitize_text_field( wp_unslash( $row['size'] ?? '' ) );
+
             if ( ! empty( $name ) || ! empty( $url ) ) {
+                // Server-side validation: ensure attached file does not exceed 10 MB
+                if ( ! empty( $url ) ) {
+                    $attachment_id = attachment_url_to_postid( $url );
+                    if ( $attachment_id ) {
+                        $file_path = get_attached_file( $attachment_id );
+                        if ( $file_path && file_exists( $file_path ) ) {
+                            $actual_size = filesize( $file_path );
+                            if ( $actual_size > FITRA_PRODUCT_DOC_MAX_BYTES ) {
+                                // Skip files that exceed 10 MB
+                                continue;
+                            }
+                        }
+                    } elseif ( ! empty( $size ) && preg_match( '/([\d\.]+)\s*MB/i', $size, $matches ) ) {
+                        if ( (float) $matches[1] > 10.0 ) {
+                            // Skip files whose declared size exceeds 10 MB
+                            continue;
+                        }
+                    }
+                }
+
                 $docs_rows[] = array(
                     'name' => $name,
                     'url'  => $url,

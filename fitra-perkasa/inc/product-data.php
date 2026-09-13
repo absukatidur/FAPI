@@ -821,8 +821,18 @@ function fitra_build_product_from_cpt( $post, $img_base = '' ) {
 
     $slug       = get_post_meta( $post->ID, 'product_slug', true ) ?: $post->post_name;
     $slug       = preg_replace( '/-id$/', '', $slug );
-    $cat_en     = get_post_meta( $post->ID, 'product_category', true ) ?: '';
-    $cat_label  = get_post_meta( $post->ID, 'product_category_label', true ) ?: $cat_en;
+    // Category: check taxonomy term first, fallback to legacy meta
+    $terms = get_the_terms( $post->ID, 'fitra_product_cat' );
+    if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+        $first_term = reset( $terms );
+        $cat_en     = $first_term->name;
+        $cat_label  = function_exists( 'fitra_get_product_cat_name' )
+            ? fitra_get_product_cat_name( $first_term )
+            : html_entity_decode( $first_term->name, ENT_QUOTES, 'UTF-8' );
+    } else {
+        $cat_en    = get_post_meta( $post->ID, 'product_category', true ) ?: '';
+        $cat_label = get_post_meta( $post->ID, 'product_category_label', true ) ?: $cat_en;
+    }
     $brand      = get_post_meta( $post->ID, 'product_brand', true ) ?: '';
     $stock      = get_post_meta( $post->ID, 'product_stock_status', true ) ?: 'IN STOCK';
     $full_title = get_post_meta( $post->ID, 'product_full_title', true ) ?: $post->post_title;

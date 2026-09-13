@@ -14,6 +14,8 @@ require_once get_template_directory() . '/inc/polylang-integration.php';
 
 // Custom Post Types
 require_once get_template_directory() . '/inc/cpt-product.php';
+require_once get_template_directory() . '/inc/taxonomy-product-cat-seeder.php';
+require_once get_template_directory() . '/inc/taxonomy-product-cat-i18n.php';
 require_once get_template_directory() . '/inc/cpt-news.php';
 
 // ACF Field Groups (requires ACF plugin)

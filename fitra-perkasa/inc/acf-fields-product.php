@@ -36,27 +36,16 @@ function fitra_acf_product_fields() {
                 'key'           => 'field_product_category',
                 'label'         => __( 'Product Category', 'fitra-perkasa' ),
                 'name'          => 'product_category',
-                'type'          => 'select',
-                'instructions'  => __( 'Select the product category for catalog filtering.', 'fitra-perkasa' ),
+                'type'          => 'taxonomy',
+                'instructions'  => __( 'Select the category for this product. Add or rename categories under Products → Categories.', 'fitra-perkasa' ),
                 'required'      => 1,
-                'choices'       => array(
-                    'Pipes & Fittings'  => 'Pipes & Fittings / Pipa & Sambungan',
-                    'Steel & Plates'    => 'Steel & Plates / Baja & Pelat',
-                    'Gasket & Seals'    => 'Gasket & Seals / Gasket & Seal',
-                    'Mechanical Drives' => 'Mechanical Drives / Penggerak Mekanikal',
-                    'Valves & Gauges'   => 'Valves & Gauges / Katup & Instrumen',
-                    'Energy & Fuel'     => 'Energy & Fuel / Energi & Bahan Bakar',
-                ),
-                'default_value' => '',
-                'return_format' => 'value',
-            ),
-            array(
-                'key'           => 'field_product_category_label',
-                'label'         => __( 'Category Display Label', 'fitra-perkasa' ),
-                'name'          => 'product_category_label',
-                'type'          => 'text',
-                'instructions'  => __( 'Localized category label shown on frontend. Example: "Pipa & Sambungan" (ID) or "Pipes & Fittings" (EN).', 'fitra-perkasa' ),
-                'required'      => 0,
+                'taxonomy'      => 'fitra_product_cat',
+                'field_type'    => 'select',   // Single-select dropdown
+                'allow_null'    => 0,
+                'return_format' => 'id',
+                'save_terms'    => 1,          // Saves to WP term relationship (used by get_the_terms)
+                'load_terms'    => 1,          // Pre-selects the currently assigned term
+                'multiple'      => 0,
             ),
             array(
                 'key'           => 'field_product_brand',

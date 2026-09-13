@@ -47,7 +47,7 @@ function fitra_register_news_cpt() {
         'capability_type'     => 'post',
         'has_archive'         => false, // Custom template routing handles archives
         'hierarchical'        => false,
-        'supports'            => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
+        'supports'            => array( 'title', 'thumbnail' ),
         'rewrite'             => array( 'slug' => 'news', 'with_front' => false ),
         'query_var'           => true,
         'exclude_from_search' => false,
@@ -56,6 +56,22 @@ function fitra_register_news_cpt() {
     register_post_type( 'fitra_news', $args );
 }
 add_action( 'init', 'fitra_register_news_cpt', 5 );
+
+/**
+ * Remove any unnecessary meta boxes from the fitra_news edit screen.
+ */
+function fitra_remove_news_unnecessary_metaboxes() {
+    remove_post_type_support( 'fitra_news', 'editor' );
+    remove_meta_box( 'postcustom', 'fitra_news', 'normal' );
+    remove_meta_box( 'postexcerpt', 'fitra_news', 'normal' );
+    remove_meta_box( 'commentsdiv', 'fitra_news', 'normal' );
+    remove_meta_box( 'commentstatusdiv', 'fitra_news', 'normal' );
+    remove_meta_box( 'slugdiv', 'fitra_news', 'normal' );
+    remove_meta_box( 'trackbacksdiv', 'fitra_news', 'normal' );
+}
+add_action( 'admin_menu', 'fitra_remove_news_unnecessary_metaboxes' );
+add_action( 'do_meta_boxes', 'fitra_remove_news_unnecessary_metaboxes' );
+
 
 /**
  * Register 'fitra_news_type' taxonomy (News / Event).

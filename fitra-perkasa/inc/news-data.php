@@ -504,17 +504,18 @@ function fitra_build_news_from_cpt( $post ) {
         $slug = preg_replace( '/-id$/', '', $slug );
     }
 
-    // Image: ACF/meta > Featured image > fallback
-    $image = get_post_meta( $post->ID, '_news_image_url', true );
-    if ( empty( $image ) && has_post_thumbnail( $post->ID ) ) {
+    // Image: Featured image (from WP admin sidebar) > static meta > fallback
+    if ( has_post_thumbnail( $post->ID ) ) {
         $image = get_the_post_thumbnail_url( $post->ID, 'full' );
+    } else {
+        $image = get_post_meta( $post->ID, '_news_image_url', true );
     }
     if ( empty( $image ) ) {
         $image = $img_base . 'factory-operations.jpg';
     }
 
     // Author
-    $author_name = get_post_meta( $post->ID, 'news_author_name', true ) ?: 'Tim Editorial';
+    $author_name = get_post_meta( $post->ID, 'news_author_name', true ) ?: ( get_post_meta( $post->ID, 'news_author', true ) ?: 'Tim Editorial' );
     $author_role = get_post_meta( $post->ID, 'news_author_role', true ) ?: 'Corporate Communications';
 
     // Features: parse "icon|title|description" lines
@@ -545,9 +546,10 @@ function fitra_build_news_from_cpt( $post ) {
     $type = ( ! empty( $terms ) && ! is_wp_error( $terms ) ) ? $terms[0] : 'berita';
 
     return array(
+        'post_id'       => $post->ID,   // Needed by template to read new meta directly
         'slug'          => $slug,
         'type'          => $type,
-        'category'      => get_post_meta( $post->ID, 'news_category_label', true ) ?: '',
+        'category'      => get_post_meta( $post->ID, 'news_category_label', true ) ?: ( get_post_meta( $post->ID, 'news_header', true ) ?: '' ),
         'date'          => get_post_meta( $post->ID, 'news_date_display', true ) ?: get_the_date( 'd M Y', $post ),
         'badge'         => get_post_meta( $post->ID, 'news_badge', true ) ?: '',
         'meta_left'     => get_post_meta( $post->ID, 'news_meta_left', true ) ?: '',
@@ -560,6 +562,9 @@ function fitra_build_news_from_cpt( $post ) {
         ),
         'image'         => $image,
         'pullquote'     => get_post_meta( $post->ID, 'news_pullquote', true ) ?: '',
+        // Simplified body field
+        'article_body'  => get_post_meta( $post->ID, 'news_article_body', true ) ?: '',
+        // Legacy section fields kept for backward compatibility (not rendered)
         'section1_title'=> get_post_meta( $post->ID, 'news_section1_title', true ) ?: '',
         'section1_p1'   => get_post_meta( $post->ID, 'news_section1_p1', true ) ?: '',
         'section1_p2'   => get_post_meta( $post->ID, 'news_section1_p2', true ) ?: '',
